@@ -2,7 +2,6 @@ import Link from "next/link";
 import { getCustomersView, getIsiGunluguView } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
 import { MusteriSecOtomatik } from "@/components/MusteriSecOtomatik";
-import { IsiGunluguCekButonu } from "@/components/IsiGunluguCekButonu";
 
 function formatGun(iso: string) {
   const d = new Date(iso + "T00:00:00Z");
@@ -27,12 +26,11 @@ export default async function IsiGunluguPage(props: PageProps<"/raporlar/isi-gun
         Open-Meteo&apos;dan otomatik çekilen günlük sıcaklık ve yağış takibi — her gün için ayrı satır.
       </div>
 
-      <div className="bg-white border border-border rounded-2xl p-5 mb-6 flex items-end justify-between gap-4 flex-wrap">
+      <div className="bg-white border border-border rounded-2xl p-5 mb-6">
         <label className="block max-w-xs">
           <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Müşteri</div>
           <MusteriSecOtomatik musteriler={musteriler} secilen={musteriId} hedefYol="/raporlar/isi-gunlugu" />
         </label>
-        {musteriId && <IsiGunluguCekButonu customerId={musteriId} />}
       </div>
 
       {!musteriId ? (
@@ -45,7 +43,7 @@ export default async function IsiGunluguPage(props: PageProps<"/raporlar/isi-gun
         </div>
       ) : view.gunler.length === 0 ? (
         <div className="bg-white border border-border rounded-2xl p-10 text-center text-text-secondary text-sm">
-          Bu müşteri için henüz günlük ısı verisi çekilmedi — yukarıdaki &quot;Son 30 Günü Çek&quot; ile başlayabilirsin.
+          Bu müşteri için henüz günlük ısı verisi yok — bir parselin sınırı haritada çizildiğinde otomatik oluşur.
         </div>
       ) : (
         <div className="bg-white border border-border rounded-2xl overflow-x-auto">

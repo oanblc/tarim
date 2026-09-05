@@ -1006,17 +1006,3 @@ export async function haftalikSicaklikCekAction(
   return { ok: true };
 }
 
-export async function isiGunlukBackfillAction(
-  customerId: string,
-  gunSayisi: number = 30,
-): Promise<{ ok: true; islenenGun: number } | { ok: false; error: string }> {
-  const user = await requireUser();
-  const customer = (await customers.list()).find((c) => c.id === customerId);
-  if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) {
-    return { ok: false, error: "Bu müşteri için iklim kaydı ekleme yetkiniz yok." };
-  }
-
-  const sonuc = await gunlukIsiGuncelle(customerId, gunSayisi);
-  if (sonuc.ok) revalidatePath("/raporlar/isi-gunlugu");
-  return sonuc;
-}
