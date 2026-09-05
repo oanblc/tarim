@@ -1,0 +1,26 @@
+[
+  {
+    "id": "1a63d4d9-21d8-4222-b784-677ea79f800d",
+    "ad": "Serkan Yıldız",
+    "email": "serkan@ornek.com",
+    "passwordHash": "$2b$10$dobB7RBVYAVdGryjoGt2dujpVw8Im.6NEULbO8nd6nR2eP0BbgajW",
+    "rol": "admin",
+    "createdAt": "2026-09-04T13:11:11.163Z"
+  },
+  {
+    "id": "5182353d-813f-4cd1-b5c8-76106b218584",
+    "ad": "Elif Aksoy",
+    "email": "elif@ornek.com",
+    "passwordHash": "$2b$10$HwJtU.cG1fZx85xmaBbN3.fQ95xMoqF5IRyZ4eZAPrfW6G/uBxDzq",
+    "rol": "muhendis",
+    "createdAt": "2026-09-04T13:11:11.163Z"
+  },
+  {
+    "id": "e6417b8b-4566-4db5-bf96-5cce3b44793f",
+    "ad": "Barış Demir",
+    "email": "baris@ornek.com",
+    "passwordHash": "$2b$10$nSZHOY1eYHedbR87ZDGohOb.GhFavMzxMMtpSqBQb8TXhMj3xKCZW",
+    "rol": "muhendis",
+    "createdAt": "2026-09-04T13:11:11.163Z"
+  }
+]

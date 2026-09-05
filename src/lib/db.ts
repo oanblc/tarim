@@ -6,14 +6,26 @@ import path from "path";
 // içindeki fonksiyonlar değişecek, çağıran kod (repositories) aynı kalacak.
 
 const DATA_DIR = path.join(process.cwd(), "data");
+const SEED_DIR = path.join(process.cwd(), "seed");
 
+// data/ klasörü .gitignore'da (gerçek veri içerebildiği için) — ama örn.
+// Railway'de bir Volume bağlandığında bu klasör boş bir diskle değiştirilir
+// ve kod içine gömülü olan başlangıç kullanıcısı/kayıt tipleri kaybolur. Bu
+// yüzden dosya hiç yoksa önce git'e gömülü seed/<isim>.json'dan kopyalanır,
+// o da yoksa boş dizi ile başlatılır.
 async function ensureDataFile(name: string) {
   const file = path.join(DATA_DIR, `${name}.json`);
   try {
     await fs.access(file);
   } catch {
     await fs.mkdir(DATA_DIR, { recursive: true });
-    await fs.writeFile(file, "[]", "utf-8");
+    const seedFile = path.join(SEED_DIR, `${name}.json`);
+    try {
+      const seed = await fs.readFile(seedFile, "utf-8");
+      await fs.writeFile(file, seed, "utf-8");
+    } catch {
+      await fs.writeFile(file, "[]", "utf-8");
+    }
   }
   return file;
 }
