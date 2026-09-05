@@ -13,6 +13,7 @@ import type {
   BeslenmePlani,
   BeslenmeUygulamaKaydi,
   FertigasyonKaydi,
+  IsiGunlukKaydi,
 } from "@/types";
 
 const COLLECTIONS = {
@@ -29,6 +30,7 @@ const COLLECTIONS = {
   beslenmePlanlari: "beslenme-planlari",
   beslenmeUygulamalari: "beslenme-uygulamalari",
   fertigasyonKayitlari: "fertigasyon-kayitlari",
+  isiGunlukleri: "isi-gunlukleri",
 } as const;
 
 export const users = {
@@ -163,5 +165,19 @@ export const fertigasyonKayitlari = {
       createdAt: new Date().toISOString(),
     }),
   remove: (id: string) => deleteOne(COLLECTIONS.fertigasyonKayitlari, id),
+};
+
+export const isiGunlukleri = {
+  list: () => readCollection<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri),
+  listByCustomer: async (customerId: string) =>
+    (await readCollection<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri)).filter((k) => k.customerId === customerId),
+  create: (data: Omit<IsiGunlukKaydi, "id" | "createdAt">) =>
+    insertOne<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri, {
+      ...data,
+      id: newId(),
+      createdAt: new Date().toISOString(),
+    }),
+  update: (id: string, patch: Partial<IsiGunlukKaydi>) => updateOne<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri, id, patch),
+  remove: (id: string) => deleteOne(COLLECTIONS.isiGunlukleri, id),
 };
 

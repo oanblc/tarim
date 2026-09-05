@@ -12,6 +12,7 @@ import {
   beslenmePlanlari,
   beslenmeUygulamalari,
   fertigasyonKayitlari,
+  isiGunlukleri,
 } from "./repositories";
 import { canAccessCustomer } from "./session";
 import { sulamaUyumuHesapla, haftalikGdd, kumulatifGddHesapla } from "./tarim";
@@ -270,6 +271,17 @@ export async function getFertigasyonView(parcelId: string, user: User) {
     .map((kayit) => ({ kayit, sonuc: fertigasyonHesapla(kayit) }));
 
   return { parcel, customer, kayitlar };
+}
+
+export async function getIsiGunluguView(customerId: string, user: User) {
+  const [allCustomers, allKayitlar] = await Promise.all([customers.list(), isiGunlukleri.listByCustomer(customerId)]);
+
+  const customer = allCustomers.find((c) => c.id === customerId);
+  if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) return null;
+
+  const gunler = allKayitlar.slice().sort((a, b) => b.tarih.localeCompare(a.tarih));
+
+  return { customer, gunler };
 }
 
 // Haftalık Özet: bir müşterinin tanımlı Isı Toplamı haftalarına göre,

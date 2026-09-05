@@ -23,6 +23,7 @@ import { SESSION_COOKIE, SESSION_MAX_AGE, hashPassword, signSessionToken, verify
 import type { Role, LatLng, GorevDurum, FertigasyonKaydi } from "@/types";
 import { polygonAreaDonum, polygonCentroid } from "./geo";
 import { haftalikSicaklikGetir } from "./openmeteo";
+import { gunlukIsiGuncelle } from "./isiGunluk";
 
 async function requireParcelAccess(parcelId: string) {
   const user = await requireUser();
@@ -997,4 +998,19 @@ export async function haftalikSicaklikCekAction(
 
   revalidatePath(`/musteriler/${customerId}/isi-toplami`);
   return { ok: true };
+}
+
+export async function isiGunlukBackfillAction(
+  customerId: string,
+  gunSayisi: number = 30,
+): Promise<{ ok: true; islenenGun: number } | { ok: false; error: string }> {
+  const user = await requireUser();
+  const customer = (await customers.list()).find((c) => c.id === customerId);
+  if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) {
+    return { ok: false, error: "Bu müşteri için iklim kaydı ekleme yetkiniz yok." };
+  }
+
+  const sonuc = await gunlukIsiGuncelle(customerId, gunSayisi);
+  if (sonuc.ok) revalidatePath("/raporlar/isi-gunlugu");
+  return sonuc;
 }

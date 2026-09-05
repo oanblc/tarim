@@ -148,6 +148,21 @@ export interface IsiHaftasi {
   createdAt: string;
 }
 
+// Günlük ısı/iklim kaydı: Open-Meteo'dan otomatik çekilen, müşteri bazlı
+// günlük sıcaklık/yağış verisi. Haftalık Isı Toplamı'ndan (elle/haftalık)
+// bağımsız — sürekli, günlük bir takip sağlar (bkz. src/lib/openmeteo.ts,
+// isiGunlukBackfillAction, /api/cron/gunluk-isi).
+export interface IsiGunlukKaydi {
+  id: string;
+  customerId: string;
+  tarih: string; // YYYY-MM-DD
+  ortSicaklik?: number;
+  minSicaklik?: number;
+  maksSicaklik?: number;
+  yagis?: number;
+  createdAt: string;
+}
+
 // Bir parsel için planlanan sulama günleri. Basit tutuluyor: açık tarih
 // listesi (tekrarlayan kural yerine) — mühendis "her N günde bir" gibi bir
 // kuraldan üretip düzenleyebilir ya da elle girebilir.

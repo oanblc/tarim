@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { getReportsView } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
-import { PlusIcon, SearchIcon, ReportsIcon, ChevronRightIcon, RAPOR_TUR_LABEL, RAPOR_TUR_STYLE } from "@/components/icons";
+import { SearchIcon, ReportsIcon, ChevronRightIcon, ThermometerIcon, RAPOR_TUR_LABEL, RAPOR_TUR_STYLE } from "@/components/icons";
 import { FarmSceneArt } from "@/components/FarmSceneArt";
 import { WaterSceneArt } from "@/components/WaterSceneArt";
 import { SummarySceneArt } from "@/components/SummarySceneArt";
@@ -84,10 +84,23 @@ export default async function RaporlarPage(props: PageProps<"/raporlar">) {
             </div>
           </div>
         </Link>
-        <div className="border border-dashed border-border rounded-2xl p-5 flex flex-col items-center justify-center text-center text-text-muted">
-          <PlusIcon size={16} className="mb-2" />
-          <div className="text-xs font-semibold">Yeni rapor türleri yakında eklenecek</div>
-        </div>
+        <Link
+          href="/raporlar/isi-gunlugu"
+          className="relative overflow-hidden rounded-2xl h-[200px] group bg-gradient-to-t from-[#7A3B1E] from-15% via-[#7A3B1E]/70 via-60% to-amber/25 hover:from-[#5E2C15] transition-colors"
+        >
+          <div className="relative h-full flex flex-col justify-end p-5">
+            <div className="w-10 h-10 rounded-[10px] bg-white/20 backdrop-blur-sm flex items-center justify-center mb-3">
+              <ThermometerIcon size={18} className="text-cream" />
+            </div>
+            <div className="flex items-center gap-1 text-[15px] font-extrabold text-cream mb-1 [text-shadow:0_1px_3px_rgba(0,0,0,0.35)]">
+              Isı Günlüğü
+              <ChevronRightIcon size={13} className="text-cream" />
+            </div>
+            <div className="text-[12px] font-medium text-cream leading-relaxed [text-shadow:0_1px_2px_rgba(0,0,0,0.35)]">
+              Müşteri seç, Open-Meteo&apos;dan otomatik çekilen günlük sıcaklık/yağış geçmişini gör.
+            </div>
+          </div>
+        </Link>
       </div>
 
       <div className="flex items-center justify-between mb-4 flex-wrap gap-3">
