@@ -39,3 +39,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# dosya tabanlı veri deposu — müşteri/parsel/kayıt gibi gerçek veriler
+# içerebileceğinden repoya girmez. Uygulama config'i olan record-types.json
+# ve sahte demo kullanıcıları (users.json) hariç.
+/data/*.json
+!/data/record-types.json
+!/data/users.json

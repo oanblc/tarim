@@ -1,69 +1,103 @@
-import Image from "next/image";
+import Link from "next/link";
+import { requireUser } from "@/lib/session";
+import { getDashboardStats, getRecentRecordsView } from "@/lib/queries";
+import { PlusIcon, RECORD_TYPE_ICONS, HomeIcon } from "@/components/icons";
+import { SayfaBasligi } from "@/components/SayfaBasligi";
 
-export default function Home() {
+function formatDateTime(iso: string) {
+  return new Date(iso).toLocaleString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
+}
+
+export default async function DashboardPage() {
+  const user = await requireUser();
+  const [stats, recent] = await Promise.all([
+    getDashboardStats(user),
+    getRecentRecordsView(user, 6),
+  ]);
+
+  const today = new Date().toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric", weekday: "long" });
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+    <div className="p-8 lg:p-10">
+      <SayfaBasligi
+        icon={HomeIcon}
+        title={`Merhaba, ${user?.ad.split(" ")[0] ?? "Mühendis"}`}
+        subtitle={today}
+        action={
+          <Link
+            href="/musteriler"
+            className="flex items-center gap-2 bg-primary text-cream px-[18px] py-2.5 rounded-[10px] text-sm font-bold"
           >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+            <PlusIcon className="text-cream" />
+            Yeni Kayıt İçin Parsel Seç
+          </Link>
+        }
+      />
+
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <StatCard label="Toplam Müşteri" value={stats.customerCount} unit="müşteri" />
+        <StatCard label="Toplam Parsel" value={stats.parcelCount} unit="parsel" />
+        <StatCard label="Toplam Kayıt" value={stats.recordCount} unit="kayıt" />
+        <StatCard label="Bu Ay Eklenen" value={stats.thisMonthCount} unit="kayıt" highlight />
+      </div>
+
+      <div className="bg-white border border-border rounded-2xl p-5 lg:p-6">
+        <div className="flex items-center justify-between mb-4">
+          <span className="text-[15px] font-bold">Son Eklenen Kayıtlar</span>
+          <Link href="/kayitlar" className="text-[12.5px] text-primary font-semibold">
+            Tümünü gör
+          </Link>
         </div>
-      </main>
+
+        {recent.length === 0 ? (
+          <div className="text-sm text-text-secondary py-6 text-center">Henüz saha kaydı eklenmedi.</div>
+        ) : (
+          <div className="flex flex-col">
+            {recent.map(({ record, parcel, customer, type, engineer }) => {
+              const Icon = RECORD_TYPE_ICONS(type?.ad ?? "");
+              return (
+                <Link
+                  key={record.id}
+                  href={parcel ? `/parseller/${parcel.id}` : "/kayitlar"}
+                  className="flex items-center gap-3 py-2.5 border-b border-border-soft last:border-0 hover:bg-cream/50 -mx-2 px-2 rounded-lg"
+                >
+                  <div className="w-8 h-8 rounded-[8px] bg-primary-bg flex items-center justify-center shrink-0">
+                    <Icon size={14} className="text-primary" />
+                  </div>
+                  <span className="text-[13px] font-semibold truncate shrink-0 max-w-[45%]">
+                    {type?.ad ?? "Kayıt"} — {parcel?.ad ?? "Bilinmeyen parsel"}
+                  </span>
+                  <span className="text-[12px] text-text-secondary truncate flex-1 min-w-0">{customer?.ad}</span>
+                  <span className="text-[11.5px] text-text-muted shrink-0 whitespace-nowrap">
+                    {formatDateTime(record.createdAt)} · {engineer?.ad}
+                  </span>
+                </Link>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function StatCard({
+  label,
+  value,
+  unit,
+  highlight,
+}: {
+  label: string;
+  value: number;
+  unit: string;
+  highlight?: boolean;
+}) {
+  return (
+    <div className="bg-white border border-border rounded-[14px] p-[18px]">
+      <span className="text-[12.5px] text-text-secondary font-semibold">{label}</span>
+      <div className={`text-[28px] font-extrabold mt-2 ${highlight ? "text-primary" : ""}`}>
+        {value} <span className="text-[13px] font-semibold text-text-secondary">{unit}</span>
+      </div>
     </div>
   );
 }

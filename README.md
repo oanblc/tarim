@@ -1,36 +1,43 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# TarlaDefteri
 
-## Getting Started
+Ziraat mühendislerinin sorumlu oldukları parselleri (gübre, sulama, hastalık gibi saha kayıtlarını) takip edip
+müşterilerine periyodik rapor gönderebildiği saha yönetim paneli.
 
-First, run the development server:
+## Geliştirme ortamını çalıştırma
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresini açın — oturum açmamış her istek `/giris` sayfasına
+yönlendirilir.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+**Demo giriş bilgileri** (`data/users.json` içindeki seed kullanıcılar, hepsinin şifresi aynı):
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| E-posta | Rol | Şifre |
+|---|---|---|
+| serkan@ornek.com | Yönetici (tüm müşterileri görür) | `sifre123` |
+| elif@ornek.com | Ziraat Mühendisi (sadece kendi müşterileri) | `sifre123` |
+| baris@ornek.com | Ziraat Mühendisi (sadece kendi müşterileri) | `sifre123` |
 
-## Learn More
+## Veri katmanı
 
-To learn more about Next.js, take a look at the following resources:
+Veriler şimdilik `data/*.json` dosyalarında tutuluyor (`src/lib/db.ts`). Proje tamamlanınca MongoDB'ye taşınacak —
+`src/lib/repositories.ts` bu geçişte tek değişmesi gereken katman, geri kalan kod (sayfalar, server action'lar)
+aynı kalacak şekilde tasarlandı.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Kimlik doğrulama
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- Şifreler `bcryptjs` ile hash'leniyor, oturum `jose` ile imzalanmış bir JWT içinde `httpOnly` cookie'de tutuluyor
+  (`src/lib/auth.ts`, `src/lib/session.ts`).
+- `src/proxy.ts` (Next.js 16'da `middleware` yerine `proxy`) oturumu olmayan her isteği `/giris`'e yönlendirir.
+- Her sayfa ve server action ayrıca kendi içinde `requireUser()` / yetki kontrolü yapıyor — proxy tek koruma katmanı
+  değil.
+- Roller: **admin** tüm müşterileri görür, **muhendis** sadece `sorumluMuhendisId` kendisine eşit olan müşterileri
+  görür/düzenleyebilir.
 
-## Deploy on Vercel
+## Henüz eklenmedi
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Gerçek harita/uydu görüntüsü ve parsel poligon çizimi (şimdilik illüstratif bir yer tutucu var)
+- Rapor e-posta gönderimi (PDF önizleme var, gönderim altyapısı yok)
+- Kullanıcı ekleme/yetkilendirme arayüzü ve yeni kayıt tipi (parametre) tanımlama formu
