@@ -99,8 +99,10 @@ export function HaftalikRaporForm({
       .filter((k) => k.parcelId === parcelId && k.tarih <= seciliGun && (k.donemBitis ?? k.tarih) >= seciliGun)
       .sort((a, b) => b.tarih.localeCompare(a.tarih));
 
-  // Bir parseldeki mevcut kaydı forma doldurur ve o parseli seçili hale getirir
-  // — birden çok parsel için art arda çağrılarak toplu düzenleme yapılabilir.
+  // Bir parseldeki mevcut kaydı forma doldurur ve SADECE o parseli seçili
+  // hale getirir (diğer seçimleri temizler) — aynı anda iki farklı parselin
+  // birbirinden bağımsız verisi tek forma karışıp biri diğerinin üzerine
+  // yazılmasın diye düzenleme her zaman tek parsel bazında yapılır.
   const kayitlariDoldur = (parcelId: string) => {
     const eslesenler = parselKayitlari(parcelId);
     if (eslesenler.length === 0) return;
@@ -113,7 +115,7 @@ export function HaftalikRaporForm({
     setAciklama(anaKayit.not ?? "");
     setFenolojikDonem(anaKayit.fenolojikDonem ?? "");
     setDurum(anaKayit.durum ?? "");
-    setSecilenParselIds((onceki) => new Set(onceki).add(parcelId));
+    setSecilenParselIds(new Set([parcelId]));
   };
 
   return (
