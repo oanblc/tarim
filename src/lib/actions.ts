@@ -633,15 +633,33 @@ export async function createHaftalikRaporAction(
     revalidatePath(`/parseller/${parcelId}`);
   }
 
-  await reports.create({
-    customerId,
-    parcelIds,
-    donemBaslangic,
-    donemBitis: donemBitisRaw || donemBaslangic,
-    ozet: aciklama || "Haftalık ziyaret raporu",
-    tur: "haftalik",
-    kaynakKayitIds,
-  });
+  // Aynı müşteri + aynı dönem için zaten bir Haftalık Rapor varsa onu
+  // güncelle — her "Kaydet" tıklamasında yeni bir rapor satırı türeyip
+  // Raporlar listesini aynı hafta için birebir kopyalarla doldurmasın diye.
+  const donemBitisSon = donemBitisRaw || donemBaslangic;
+  const mevcutRapor = (await reports.listByCustomer(customerId)).find(
+    (r) => r.tur === "haftalik" && r.donemBaslangic === donemBaslangic && r.donemBitis === donemBitisSon,
+  );
+
+  if (mevcutRapor) {
+    const birlesikParselIds = Array.from(new Set([...mevcutRapor.parcelIds, ...parcelIds]));
+    const birlesikKayitIds = Array.from(new Set([...(mevcutRapor.kaynakKayitIds ?? []), ...kaynakKayitIds]));
+    await reports.update(mevcutRapor.id, {
+      parcelIds: birlesikParselIds,
+      ozet: aciklama || mevcutRapor.ozet,
+      kaynakKayitIds: birlesikKayitIds,
+    });
+  } else {
+    await reports.create({
+      customerId,
+      parcelIds,
+      donemBaslangic,
+      donemBitis: donemBitisSon,
+      ozet: aciklama || "Haftalık ziyaret raporu",
+      tur: "haftalik",
+      kaynakKayitIds,
+    });
+  }
 
   revalidatePath(`/musteriler/${customerId}`);
   redirect(`/raporlar/haftalik-rapor?musteriId=${customerId}`);
