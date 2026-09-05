@@ -41,8 +41,8 @@ export default async function HaftalikOzetPage(props: PageProps<"/raporlar/hafta
       ) : view.haftalar.length === 0 ? (
         <div className="bg-white border border-border rounded-2xl p-10 text-center text-text-secondary text-sm flex flex-col items-center gap-3">
           <span>
-            Bu müşteri için henüz Isı Toplamı haftası tanımlanmadı — haftalık özet, o hafta tanımlarına göre
-            hesaplanır.
+            Bu müşteri için henüz ısı verisi yok — bir parselin sınırı haritada çizilince otomatik oluşur, veya
+            elle bir Isı Toplamı haftası tanımlayabilirsin.
           </span>
           <Link
             href={`/musteriler/${musteriId}/isi-toplami`}

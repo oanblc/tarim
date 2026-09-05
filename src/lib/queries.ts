@@ -18,6 +18,7 @@ import { canAccessCustomer } from "./session";
 import { sulamaUyumuHesapla, haftalikGdd, kumulatifGddHesapla } from "./tarim";
 import { beslenmePlaniHesapla } from "./beslenme";
 import { fertigasyonHesapla } from "./fertigasyon";
+import { gunlukVeridenHaftalarUret } from "./isiGunluk";
 import type { User } from "@/types";
 
 function visibleCustomerIds(user: User, allCustomers: Awaited<ReturnType<typeof customers.list>>) {
@@ -289,16 +290,22 @@ export async function getIsiGunluguView(customerId: string, user: User) {
 // otomatik toplayan haftalık panorama (Excel'deki "Özet" sayfasının
 // karşılığı — orada da tüm sütunlar diğer sekmelerden otomatik toplanıyordu).
 export async function getHaftalikOzetView(customerId: string, user: User) {
-  const [allCustomers, allParcels, allHaftalar, allRecords, allTypes] = await Promise.all([
+  const [allCustomers, allParcels, allHaftalarElle, allRecords, allTypes, gunlukIsiKayitlari] = await Promise.all([
     customers.list(),
     parcels.list(),
     isiHaftalari.listByCustomer(customerId),
     records.list(),
     recordTypes.list(),
+    isiGunlukleri.listByCustomer(customerId),
   ]);
 
   const customer = allCustomers.find((c) => c.id === customerId);
   if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) return null;
+
+  // Müşteri elle "Isı Toplamı" haftası girmediyse, otomatik çekilen günlük
+  // Isı Günlüğü verisinden haftalık ortalamalar türetilir — manuel adım
+  // atlanabilsin diye.
+  const allHaftalar = allHaftalarElle.length > 0 ? allHaftalarElle : gunlukVeridenHaftalarUret(gunlukIsiKayitlari, customerId);
 
   const parcelIds = new Set(allParcels.filter((p) => p.customerId === customerId).map((p) => p.id));
   const musteriKayitlari = allRecords.filter((r) => parcelIds.has(r.parcelId));

@@ -5,11 +5,54 @@
 import { customers, parcels, isiGunlukleri } from "./repositories";
 import { polygonCentroid } from "./geo";
 import { gunlukSicaklikSerisiGetir } from "./openmeteo";
+import type { IsiHaftasi } from "@/types";
 
 function gunEkle(iso: string, gun: number) {
   const d = new Date(iso + "T00:00:00Z");
   d.setUTCDate(d.getUTCDate() + gun);
   return d.toISOString().slice(0, 10);
+}
+
+// Bir tarihin ait olduğu haftanın Pazartesi'sini döner (ISO hafta).
+function haftaBaslangiciBul(tarih: string): string {
+  const gun = new Date(tarih + "T00:00:00Z");
+  const haftaGunu = gun.getUTCDay() || 7; // Pazartesi=1 ... Pazar=7
+  gun.setUTCDate(gun.getUTCDate() - (haftaGunu - 1));
+  return gun.toISOString().slice(0, 10);
+}
+
+// Günlük Isı Günlüğü kayıtlarından haftalık ortalama sıcaklık üretir —
+// müşteri elle "Isı Toplamı" haftası tanımlamamışsa Haftalık Özet'in
+// otomatik çekilen günlük veriyle de çalışabilmesi için (bkz.
+// getHaftalikOzetView, src/lib/queries.ts).
+export function gunlukVeridenHaftalarUret(
+  gunler: { tarih: string; ortSicaklik?: number; minSicaklik?: number; maksSicaklik?: number; yagis?: number }[],
+  customerId: string,
+): IsiHaftasi[] {
+  const gruplar = new Map<string, typeof gunler>();
+  for (const gun of gunler) {
+    const baslangic = haftaBaslangiciBul(gun.tarih);
+    if (!gruplar.has(baslangic)) gruplar.set(baslangic, []);
+    gruplar.get(baslangic)!.push(gun);
+  }
+
+  const ortalama = (arr: number[]) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : undefined);
+
+  return Array.from(gruplar.entries())
+    .map(([haftaBaslangic, buHaftakiGunler]) => {
+      const sicakliklar = buHaftakiGunler.map((g) => g.ortSicaklik).filter((n): n is number => n !== undefined);
+      const yagislar = buHaftakiGunler.map((g) => g.yagis).filter((n): n is number => n !== undefined);
+      const ort = ortalama(sicakliklar);
+      return {
+        id: `gunluk-${customerId}-${haftaBaslangic}`,
+        customerId,
+        haftaBaslangic,
+        ortSicaklik: ort !== undefined ? Math.round(ort * 10) / 10 : undefined,
+        yagis: yagislar.length ? Math.round(yagislar.reduce((a, b) => a + b, 0) * 10) / 10 : undefined,
+        createdAt: new Date().toISOString(),
+      };
+    })
+    .sort((a, b) => a.haftaBaslangic.localeCompare(b.haftaBaslangic));
 }
 
 export async function gunlukIsiGuncelle(
