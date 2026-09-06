@@ -539,6 +539,7 @@ export async function createHaftalikRaporAction(
   const tarih = String(formData.get("seciliGun") ?? "") || donemBaslangic;
   const recete = String(formData.get("recete") ?? "").trim();
   const gubreleme = String(formData.get("gubreleme") ?? "").trim();
+  const yaprakGubresi = String(formData.get("yaprakGubresi") ?? "").trim();
   const fenolojikDonem = String(formData.get("fenolojikDonem") ?? "").trim();
   const durum = String(formData.get("durum") ?? "").trim();
   const aciklama = String(formData.get("aciklama") ?? "").trim();
@@ -568,8 +569,9 @@ export async function createHaftalikRaporAction(
 
   const ilacTuru = allTypes.find((t) => t.ad === "İlaçlama");
   const gubrelemeTuru = allTypes.find((t) => t.ad === "Gübreleme");
+  const yaprakGubresiTuru = allTypes.find((t) => t.ad === "Yaprak Gübresi");
   const gozlemTuru = allTypes.find((t) => t.ad === "Gözlem");
-  if (!gozlemTuru || (recete && !ilacTuru) || (gubreleme && !gubrelemeTuru)) {
+  if (!gozlemTuru || (recete && !ilacTuru) || (gubreleme && !gubrelemeTuru) || (yaprakGubresi && !yaprakGubresiTuru)) {
     return { error: "Kayıt tipi bulunamadı — Ayarlar'ı kontrol edin." };
   }
 
@@ -619,7 +621,19 @@ export async function createHaftalikRaporAction(
       }
     }
 
-    if (!recete && !gubreleme) {
+    if (yaprakGubresi && yaprakGubresiTuru) {
+      const mevcut = mevcutKaydiBul(parcelId, yaprakGubresiTuru.id);
+      const values = { detay: yaprakGubresi };
+      if (mevcut) {
+        await records.update(mevcut.id, { ...ortakAlanlar, values });
+        kaynakKayitIds.push(mevcut.id);
+      } else {
+        const kayit = await records.create({ parcelId, recordTypeId: yaprakGubresiTuru.id, muhendisId: user.id, values, ...ortakAlanlar });
+        kaynakKayitIds.push(kayit.id);
+      }
+    }
+
+    if (!recete && !gubreleme && !yaprakGubresi) {
       const mevcut = mevcutKaydiBul(parcelId, gozlemTuru.id);
       if (mevcut) {
         await records.update(mevcut.id, { ...ortakAlanlar, values: {} });

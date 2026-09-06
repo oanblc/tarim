@@ -290,13 +290,14 @@ export async function getIsiGunluguView(customerId: string, user: User) {
 // otomatik toplayan haftalık panorama (Excel'deki "Özet" sayfasının
 // karşılığı — orada da tüm sütunlar diğer sekmelerden otomatik toplanıyordu).
 export async function getHaftalikOzetView(customerId: string, user: User) {
-  const [allCustomers, allParcels, allHaftalarElle, allRecords, allTypes, gunlukIsiKayitlari] = await Promise.all([
+  const [allCustomers, allParcels, allHaftalarElle, allRecords, allTypes, gunlukIsiKayitlari, allGorevler] = await Promise.all([
     customers.list(),
     parcels.list(),
     isiHaftalari.listByCustomer(customerId),
     records.list(),
     recordTypes.list(),
     isiGunlukleri.listByCustomer(customerId),
+    gorevler.list(),
   ]);
 
   const customer = allCustomers.find((c) => c.id === customerId);
@@ -309,14 +310,13 @@ export async function getHaftalikOzetView(customerId: string, user: User) {
 
   const parcelIds = new Set(allParcels.filter((p) => p.customerId === customerId).map((p) => p.id));
   const musteriKayitlari = allRecords.filter((r) => parcelIds.has(r.parcelId));
+  const musteriGorevleri = allGorevler.filter((g) => parcelIds.has(g.parcelId));
 
   const typeIdByAd = (ad: string) => allTypes.find((t) => t.ad.toLowerCase() === ad.toLowerCase())?.id;
   const sulamaId = typeIdByAd("Sulama");
   const gubrelemeId = typeIdByAd("Gübreleme");
   const yaprakGubresiId = typeIdByAd("Yaprak Gübresi");
   const ilaclamaId = typeIdByAd("İlaçlama");
-  const gozlemId = typeIdByAd("Gözlem");
-  const hastalikId = typeIdByAd("Hastalık / Zararlı");
 
   const siraliHaftalar = allHaftalar.slice().sort((a, b) => a.haftaBaslangic.localeCompare(b.haftaBaslangic));
   const kumulatifler = kumulatifGddHesapla(
@@ -345,7 +345,9 @@ export async function getHaftalikOzetView(customerId: string, user: User) {
         gubreUygulama: buHaftaKayitlari.filter((r) => r.recordTypeId === gubrelemeId).length,
         yaprakGubresi: buHaftaKayitlari.filter((r) => r.recordTypeId === yaprakGubresiId).length,
         ilacUygulama: buHaftaKayitlari.filter((r) => r.recordTypeId === ilaclamaId).length,
-        sahaTespiti: buHaftaKayitlari.filter((r) => r.recordTypeId === gozlemId || r.recordTypeId === hastalikId).length,
+        // Excel'deki "Parsel Gezisi" sekmesinin karşılığı: o hafta tespit
+        // edilen/oluşturulan görev sayısı (COUNTIFS('Parsel Gezisi', hafta)).
+        sahaTespiti: musteriGorevleri.filter((g) => g.tarih >= baslangic && g.tarih <= bitisIso).length,
       };
     })
     .reverse();

@@ -73,6 +73,7 @@ export function HaftalikRaporForm({
   const [aciklama, setAciklama] = useState("");
   const [recete, setRecete] = useState("");
   const [gubreleme, setGubreleme] = useState("");
+  const [yaprakGubresi, setYaprakGubresi] = useState("");
   const [fenolojikDonem, setFenolojikDonem] = useState("");
   const [durum, setDurum] = useState("");
 
@@ -108,10 +109,12 @@ export function HaftalikRaporForm({
     if (eslesenler.length === 0) return;
     const ilacKaydi = eslesenler.find((k) => k.typeAd === "İlaçlama");
     const gubreKaydi = eslesenler.find((k) => k.typeAd === "Gübreleme");
+    const yaprakGubresiKaydi = eslesenler.find((k) => k.typeAd === "Yaprak Gübresi");
     const anaKayit = eslesenler[0];
 
     setRecete((ilacKaydi?.values?.recete as string) ?? "");
     setGubreleme((gubreKaydi?.values?.detay as string) ?? "");
+    setYaprakGubresi((yaprakGubresiKaydi?.values?.detay as string) ?? "");
     setAciklama(anaKayit.not ?? "");
     setFenolojikDonem(anaKayit.fenolojikDonem ?? "");
     setDurum(anaKayit.durum ?? "");
@@ -323,6 +326,18 @@ export function HaftalikRaporForm({
               value={gubreleme}
               onChange={(e) => setGubreleme(e.target.value)}
               placeholder="Uygulanan gübre türü, dozu, yöntemi..."
+              className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13px] outline-none focus:border-primary resize-none"
+            />
+          </label>
+
+          <label className="block">
+            <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Yaprak Gübresi (opsiyonel)</div>
+            <textarea
+              name="yaprakGubresi"
+              rows={2}
+              value={yaprakGubresi}
+              onChange={(e) => setYaprakGubresi(e.target.value)}
+              placeholder="Örn. Mc Cream 3lt + Plantafol 20.20.20 4kg + Brexil Multi 2kg / 1 ton suya"
               className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13px] outline-none focus:border-primary resize-none"
             />
           </label>
