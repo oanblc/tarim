@@ -7,9 +7,7 @@ import {
   ChevronRightIcon,
   PlusIcon,
   GOREV_DURUM_LABEL,
-  GOREV_DURUM_STYLE,
   RAPOR_TUR_LABEL,
-  RAPOR_TUR_STYLE,
   ReportsIcon,
   ThermometerIcon,
   DropletIcon,
@@ -20,7 +18,12 @@ import {
   MapIcon,
   SproutIcon,
   ClockIcon,
+  GOREV_DURUM_BADGE,
+  RAPOR_TUR_BADGE,
 } from "@/components/icons";
+import { Button } from "@/components/ui/button/Button";
+import { Badge } from "@/components/ui/badge/Badge";
+import { Avatar } from "@/components/ui/avatar/Avatar";
 
 function formatDate(iso?: string) {
   if (!iso) return "Henüz kayıt yok";
@@ -70,15 +73,9 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
           {/* Sol: bilgiler */}
           <div className="flex flex-col gap-6">
             <div className="bg-white border border-border rounded-2xl overflow-hidden">
-              <div className="bg-gradient-to-br from-primary-bg to-cream px-6 pt-6 pb-5">
+              <div className="px-6 pt-6 pb-5 border-b border-border-soft">
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 rounded-2xl bg-primary flex items-center justify-center text-[17px] font-extrabold text-cream shrink-0 shadow-sm shadow-black/10">
-                    {customer.ad
-                      .split(" ")
-                      .map((w) => w[0])
-                      .slice(0, 2)
-                      .join("")}
-                  </div>
+                  <Avatar name={customer.ad} size={56} variant="solid" radius={16} className="text-[17px]" />
                   <div className="flex-1 min-w-0 pt-0.5">
                     <div className="flex items-center justify-between gap-3">
                       <div className="text-[19px] font-extrabold leading-tight">{customer.ad}</div>
@@ -117,27 +114,25 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
                 </div>
 
                 <div className="flex items-center gap-2 mt-5">
-                  <Link
-                    href={`/musteriler/${customer.id}/rapor`}
-                    className="flex items-center justify-center gap-1.5 bg-primary text-cream px-4 py-2.5 rounded-[9px] text-[12.5px] font-bold whitespace-nowrap"
-                  >
-                    <ReportsIcon size={14} className="text-cream" />
+                  <Button href={`/musteriler/${customer.id}/rapor`} size="sm" startIcon={<ReportsIcon size={14} className="text-cream" />}>
                     Rapor Oluştur
-                  </Link>
-                  <Link
+                  </Button>
+                  <Button
                     href={`/musteriler/${customer.id}/isi-toplami`}
-                    className="flex items-center justify-center gap-1.5 bg-cream border border-border px-4 py-2.5 rounded-[9px] text-[12.5px] font-bold text-[#4A4F45] whitespace-nowrap"
+                    size="sm"
+                    variant="outline"
+                    startIcon={<ThermometerIcon size={14} className="text-[#4A4F45]" />}
                   >
-                    <ThermometerIcon size={14} className="text-[#4A4F45]" />
                     Isı Toplamı
-                  </Link>
-                  <Link
+                  </Button>
+                  <Button
                     href={`/musteriler/${customer.id}/sulama-kuyulari`}
-                    className="flex items-center justify-center gap-1.5 bg-cream border border-border px-4 py-2.5 rounded-[9px] text-[12.5px] font-bold text-[#4A4F45] whitespace-nowrap"
+                    size="sm"
+                    variant="outline"
+                    startIcon={<DropletIcon size={14} className="text-[#4A4F45]" />}
                   >
-                    <DropletIcon size={14} className="text-[#4A4F45]" />
                     Kuyular
-                  </Link>
+                  </Button>
                 </div>
               </div>
             </div>
@@ -196,9 +191,9 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
                         <div className="flex items-center gap-2">
                           <span className="text-[14px] font-bold truncate">{parcel.ad}</span>
                           {sonDurum && (
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${GOREV_DURUM_STYLE[sonDurum]}`}>
+                            <Badge color={GOREV_DURUM_BADGE[sonDurum] ?? "info"} size="sm">
                               {GOREV_DURUM_LABEL[sonDurum] ?? sonDurum}
-                            </span>
+                            </Badge>
                           )}
                         </div>
                         <div className="text-[12px] text-text-secondary truncate mt-0.5">
@@ -245,9 +240,9 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
                   className="w-full border border-border rounded-[8px] px-2.5 py-1.5 text-[12px] outline-none focus:border-primary"
                 />
               </label>
-              <button type="submit" className="col-span-2 bg-primary text-cream text-[12px] font-bold py-2 rounded-[8px]">
+              <Button type="submit" size="sm" className="col-span-2">
                 Filtrele
-              </button>
+              </Button>
             </form>
 
             {raporlar.length === 0 ? (
@@ -268,13 +263,9 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
                       <span className="text-[12.5px] font-bold">
                         {formatKisaTarih(rapor.donemBaslangic)} – {formatKisaTarih(rapor.donemBitis)}
                       </span>
-                      <span
-                        className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                          RAPOR_TUR_STYLE[rapor.tur] ?? "bg-blue-bg text-blue"
-                        }`}
-                      >
+                      <Badge color={RAPOR_TUR_BADGE[rapor.tur] ?? "info"} size="sm">
                         {RAPOR_TUR_LABEL[rapor.tur] ?? "Genel Rapor"}
-                      </span>
+                      </Badge>
                     </div>
                     <div className="text-[11px] text-text-muted mt-1">
                       {rapor.parcelIds.length} parsel · {formatKisaTarih(rapor.createdAt)} oluşturuldu

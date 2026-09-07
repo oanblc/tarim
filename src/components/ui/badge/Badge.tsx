@@ -1,7 +1,9 @@
 import { ReactNode } from "react";
 
-// TailAdmin'den uyarlandı (github.com/TailAdmin/free-nextjs-admin-dashboard) —
-// bkz. src/components/ui/button/Button.tsx'teki not.
+// TailAdmin'den uyarlandı — renkler TailAdmin'in kendi success/error/warning
+// skalası yerine TarlaDefteri'nin zaten her yerde kullandığı primary/blue/
+// amber/red token çiftlerine bağlandı (GOREV_DURUM_STYLE, RAPOR_TUR_STYLE
+// ile aynı paleti kullanır, bkz. src/components/icons.tsx).
 export function Badge({
   variant = "light",
   color = "primary",
@@ -12,44 +14,42 @@ export function Badge({
 }: {
   variant?: "light" | "solid";
   size?: "sm" | "md";
-  color?: "primary" | "success" | "error" | "warning" | "info" | "light" | "dark";
+  color?: "primary" | "success" | "error" | "warning" | "info" | "light";
   startIcon?: ReactNode;
   endIcon?: ReactNode;
   children: ReactNode;
 }) {
-  const baseStyles = "inline-flex items-center px-2.5 py-0.5 justify-center gap-1 rounded-full font-medium";
+  const baseStyles = "inline-flex items-center justify-center gap-1 rounded-full font-bold";
 
   const sizeStyles = {
-    sm: "text-theme-xs",
-    md: "text-sm",
+    sm: "px-2 py-0.5 text-[10.5px]",
+    md: "px-2.5 py-1 text-[11.5px]",
   };
 
   const variants = {
     light: {
-      primary: "bg-brand-50 text-brand-500 dark:bg-brand-500/15 dark:text-brand-400",
-      success: "bg-success-50 text-success-600 dark:bg-success-500/15 dark:text-success-500",
-      error: "bg-error-50 text-error-600 dark:bg-error-500/15 dark:text-error-500",
-      warning: "bg-warning-50 text-warning-600 dark:bg-warning-500/15 dark:text-orange-400",
-      info: "bg-blue-light-50 text-blue-light-500 dark:bg-blue-light-500/15 dark:text-blue-light-500",
-      light: "bg-gray-100 text-gray-700 dark:bg-white/5 dark:text-white/80",
-      dark: "bg-gray-500 text-white dark:bg-white/5 dark:text-white",
+      primary: "bg-primary-bg text-primary",
+      success: "bg-primary-bg text-primary",
+      error: "bg-red-bg text-red",
+      warning: "bg-amber-bg text-amber",
+      info: "bg-blue-bg text-blue",
+      light: "bg-cream text-text-secondary",
     },
     solid: {
-      primary: "bg-brand-500 text-white dark:text-white",
-      success: "bg-success-500 text-white dark:text-white",
-      error: "bg-error-500 text-white dark:text-white",
-      warning: "bg-warning-500 text-white dark:text-white",
-      info: "bg-blue-light-500 text-white dark:text-white",
-      light: "bg-gray-400 dark:bg-white/5 text-white dark:text-white/80",
-      dark: "bg-gray-700 text-white dark:text-white",
+      primary: "bg-primary text-cream",
+      success: "bg-primary text-cream",
+      error: "bg-red text-cream",
+      warning: "bg-amber text-cream",
+      info: "bg-blue text-cream",
+      light: "bg-border text-text",
     },
   };
 
   return (
     <span className={`${baseStyles} ${sizeStyles[size]} ${variants[variant][color]}`}>
-      {startIcon && <span className="mr-1">{startIcon}</span>}
+      {startIcon && <span className="flex items-center">{startIcon}</span>}
       {children}
-      {endIcon && <span className="ml-1">{endIcon}</span>}
+      {endIcon && <span className="flex items-center">{endIcon}</span>}
     </span>
   );
 }

@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/actions";
 import { useSidebar } from "@/context/SidebarContext";
+import { Avatar } from "@/components/ui/avatar/Avatar";
 import { HomeIcon, UsersIcon, MapIcon, RecordsIcon, ReportsIcon, SettingsIcon, ClipboardIcon, SignalIcon } from "./icons";
 
 const NAV_ITEMS = [
@@ -15,15 +16,6 @@ const NAV_ITEMS = [
   { href: "/raporlar", label: "Raporlar", icon: ReportsIcon, match: (p: string) => p.startsWith("/raporlar") },
   { href: "/toprak", label: "TOPRAQ", icon: SignalIcon, match: (p: string) => p.startsWith("/toprak") },
 ];
-
-function initialsOf(name: string) {
-  return name
-    .split(" ")
-    .map((w) => w[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
-}
 
 // Masaüstünde daraltılabilir (hover'da geçici genişler), mobilde tam ekran
 // overlay olarak açılıp kapanan sidebar — TailAdmin'in AppSidebar mekaniği
@@ -93,9 +85,7 @@ export function Sidebar({ user }: { user: { ad: string; rol: "admin" | "muhendis
         </Link>
 
         <div className={`flex items-center gap-2.5 pt-3 pb-2 border-t border-forest-active mt-2 ${genisletilmisMi ? "px-2" : "px-0 justify-center"}`}>
-          <div className="w-8 h-8 rounded-full bg-primary text-cream flex items-center justify-center text-[13px] font-bold shrink-0">
-            {initialsOf(user.ad)}
-          </div>
+          <Avatar name={user.ad} size={32} variant="solid" />
           {genisletilmisMi && (
             <div className="min-w-0">
               <div className="text-cream text-[13px] font-semibold leading-tight truncate">{user.ad}</div>

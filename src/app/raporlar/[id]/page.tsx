@@ -3,7 +3,8 @@ import { notFound } from "next/navigation";
 import { getReportDetail } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
 import { removeReportAction } from "@/lib/actions";
-import { MailIcon, SproutIcon, RAPOR_TUR_LABEL, RAPOR_TUR_STYLE, GOREV_DURUM_LABEL } from "@/components/icons";
+import { MailIcon, SproutIcon, RAPOR_TUR_LABEL, RAPOR_TUR_BADGE, GOREV_DURUM_LABEL } from "@/components/icons";
+import { Badge } from "@/components/ui/badge/Badge";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -32,13 +33,7 @@ export default async function RaporDetayPage(props: PageProps<"/raporlar/[id]">)
             </div>
             <div className="text-[21px] font-extrabold">{customer?.ad} — {donemLabel}</div>
           </div>
-          <span
-            className={`text-[11.5px] font-bold px-3 py-1.5 rounded-full shrink-0 ${
-              RAPOR_TUR_STYLE[report.tur] ?? "bg-blue-bg text-blue"
-            }`}
-          >
-            {RAPOR_TUR_LABEL[report.tur] ?? "Genel Rapor"}
-          </span>
+          <Badge color={RAPOR_TUR_BADGE[report.tur] ?? "info"}>{RAPOR_TUR_LABEL[report.tur] ?? "Genel Rapor"}</Badge>
         </div>
 
         <div className="bg-[#EDEBE1] rounded-2xl p-8 flex justify-center mb-6">

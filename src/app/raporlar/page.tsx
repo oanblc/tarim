@@ -1,11 +1,13 @@
 import Link from "next/link";
 import { getReportsView } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
-import { SearchIcon, ReportsIcon, ChevronRightIcon, ThermometerIcon, RAPOR_TUR_LABEL, RAPOR_TUR_STYLE } from "@/components/icons";
+import { SearchIcon, ReportsIcon, ChevronRightIcon, ThermometerIcon, RAPOR_TUR_LABEL, RAPOR_TUR_BADGE } from "@/components/icons";
 import { FarmSceneArt } from "@/components/FarmSceneArt";
 import { WaterSceneArt } from "@/components/WaterSceneArt";
 import { SummarySceneArt } from "@/components/SummarySceneArt";
 import { SayfaBasligi } from "@/components/SayfaBasligi";
+import { Button } from "@/components/ui/button/Button";
+import { Badge } from "@/components/ui/badge/Badge";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -116,9 +118,9 @@ export default async function RaporlarPage(props: PageProps<"/raporlar">) {
               className="text-[13px] outline-none w-[160px]"
             />
           </div>
-          <button type="submit" className="bg-primary text-cream text-[13px] font-bold px-4 py-2 rounded-[9px]">
+          <Button size="sm" type="submit">
             Filtrele
-          </button>
+          </Button>
         </form>
       </div>
 
@@ -143,13 +145,9 @@ export default async function RaporlarPage(props: PageProps<"/raporlar">) {
                 </div>
               </div>
               <div className="flex items-center gap-3">
-                <span
-                  className={`text-[11px] font-bold px-2.5 py-1 rounded-full shrink-0 ${
-                    RAPOR_TUR_STYLE[report.tur] ?? "bg-blue-bg text-blue"
-                  }`}
-                >
+                <Badge color={RAPOR_TUR_BADGE[report.tur] ?? "info"} size="sm">
                   {RAPOR_TUR_LABEL[report.tur] ?? "Genel Rapor"}
-                </span>
+                </Badge>
                 <ChevronRightIcon size={14} className="text-text-muted" />
               </div>
             </Link>

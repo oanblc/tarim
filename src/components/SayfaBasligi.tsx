@@ -2,9 +2,11 @@ import type { ReactNode } from "react";
 
 type IkonBileseni = (props: { size?: number; className?: string }) => ReactNode;
 
-// Liste sayfalarının üst başlık alanı için ortak, ikonlu ve arkaplanlı kart —
-// Müşteriler, Parseller, Kayıtlar, Görevler, Raporlar arasında hem görsel hem
-// yükseklik tutarlılığı sağlar (sabit dolgu + sabit ikon kutusu boyutu).
+// Liste sayfalarının üst başlık alanı için ortak, ikonlu kart — Müşteriler,
+// Parseller, Kayıtlar, Görevler, Raporlar arasında hem görsel hem yükseklik
+// tutarlılığı sağlar (sabit dolgu + sabit ikon kutusu boyutu). Düz beyaz +
+// ince kenarlık — eskiden köşegen bir gradyan vardı, TailAdmin'in daha sade
+// kart diline uyum için kaldırıldı.
 export function SayfaBasligi({
   icon: Icon,
   title,
@@ -17,9 +19,9 @@ export function SayfaBasligi({
   action?: ReactNode;
 }) {
   return (
-    <div className="flex items-center justify-between gap-4 flex-wrap bg-gradient-to-br from-primary-bg to-cream border border-border rounded-2xl px-6 py-5 mb-6 min-h-[84px]">
+    <div className="flex items-center justify-between gap-4 flex-wrap bg-white border border-border rounded-2xl px-6 py-5 mb-6 min-h-[84px] shadow-theme-xs">
       <div className="flex items-center gap-3.5">
-        <div className="w-11 h-11 rounded-[12px] bg-primary flex items-center justify-center shrink-0 shadow-sm shadow-black/10">
+        <div className="w-11 h-11 rounded-[12px] bg-primary flex items-center justify-center shrink-0">
           <Icon size={20} className="text-cream" />
         </div>
         <div>

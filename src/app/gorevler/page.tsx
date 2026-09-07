@@ -6,6 +6,8 @@ import { SilButonu } from "@/components/SilButonu";
 import { removeGorevAction } from "@/lib/actions";
 import { ClipboardIcon, PlusIcon, UsersIcon } from "@/components/icons";
 import { SayfaBasligi } from "@/components/SayfaBasligi";
+import { Button } from "@/components/ui/button/Button";
+import { Badge } from "@/components/ui/badge/Badge";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -24,13 +26,9 @@ export default async function GorevlerPage() {
         title="Görevler"
         subtitle={`${rows.length} görev · ${acikSayisi} açık`}
         action={
-          <Link
-            href="/gorevler/yeni"
-            className="flex items-center gap-2 bg-primary text-cream px-[18px] py-2.5 rounded-[10px] text-sm font-bold"
-          >
-            <PlusIcon className="text-cream" />
+          <Button href="/gorevler/yeni" startIcon={<PlusIcon className="text-cream" />}>
             Yeni Görev
-          </Link>
+          </Button>
         }
       />
 
@@ -48,9 +46,7 @@ export default async function GorevlerPage() {
             <div key={gorev.id} className="flex items-start gap-4 px-5 py-4 border-b border-border-soft last:border-0">
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 flex-wrap mb-1.5">
-                  <span className="text-[11.5px] font-bold text-primary bg-primary-bg px-2.5 py-0.5 rounded-full">
-                    {gorev.konu}
-                  </span>
+                  <Badge>{gorev.konu}</Badge>
                   {customer && (
                     <Link href={`/musteriler/${customer.id}`} className="text-[12.5px] font-bold text-[#4A4F45] hover:underline">
                       {customer.ad}
@@ -75,10 +71,9 @@ export default async function GorevlerPage() {
                     {gorev.terminTarihi && ` · Termin: ${formatDate(gorev.terminTarihi)}`}
                   </span>
                   {sorumlu && (
-                    <span className="flex items-center gap-1 text-[11px] font-semibold text-blue bg-blue-bg px-2 py-0.5 rounded-full">
-                      <UsersIcon size={11} className="text-blue" />
+                    <Badge color="info" size="sm" startIcon={<UsersIcon size={11} className="text-blue" />}>
                       {sorumlu.ad}
-                    </span>
+                    </Badge>
                   )}
                 </div>
               </div>

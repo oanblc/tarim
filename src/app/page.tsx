@@ -3,6 +3,7 @@ import { requireUser } from "@/lib/session";
 import { getDashboardStats, getRecentRecordsView } from "@/lib/queries";
 import { PlusIcon, RECORD_TYPE_ICONS, HomeIcon } from "@/components/icons";
 import { SayfaBasligi } from "@/components/SayfaBasligi";
+import { Button } from "@/components/ui/button/Button";
 
 function formatDateTime(iso: string) {
   return new Date(iso).toLocaleString("tr-TR", { day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" });
@@ -24,13 +25,9 @@ export default async function DashboardPage() {
         title={`Merhaba, ${user?.ad.split(" ")[0] ?? "Mühendis"}`}
         subtitle={today}
         action={
-          <Link
-            href="/musteriler"
-            className="flex items-center gap-2 bg-primary text-cream px-[18px] py-2.5 rounded-[10px] text-sm font-bold"
-          >
-            <PlusIcon className="text-cream" />
+          <Button href="/musteriler" startIcon={<PlusIcon className="text-cream" />}>
             Yeni Kayıt İçin Parsel Seç
-          </Link>
+          </Button>
         }
       />
 

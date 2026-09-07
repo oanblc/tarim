@@ -306,6 +306,20 @@ export const GOREV_DURUM_STYLE: Record<string, string> = {
   tamamlandi: "bg-primary-bg text-primary",
 };
 
+// Badge bileşeni için renk karşılıkları — GOREV_DURUM_STYLE ile aynı gruplama,
+// sadece ham class yerine Badge'in `color` prop'una uygun isim döner.
+export type BadgeRenk = "primary" | "success" | "error" | "warning" | "info" | "light";
+export const GOREV_DURUM_BADGE: Record<string, BadgeRenk> = {
+  planlandi: "info",
+  devam_ediyor: "info",
+  takip_ediliyor: "success",
+  kritik: "error",
+  acil: "error",
+  bekliyor: "warning",
+  toplanti_gerekli: "info",
+  tamamlandi: "success",
+};
+
 export const RAPOR_TUR_LABEL: Record<string, string> = {
   genel: "Genel Rapor",
   haftalik: "Haftalık Rapor",
@@ -314,6 +328,11 @@ export const RAPOR_TUR_LABEL: Record<string, string> = {
 export const RAPOR_TUR_STYLE: Record<string, string> = {
   genel: "bg-blue-bg text-blue",
   haftalik: "bg-primary-bg text-primary",
+};
+
+export const RAPOR_TUR_BADGE: Record<string, BadgeRenk> = {
+  genel: "info",
+  haftalik: "success",
 };
 
 export function RECORD_TYPE_ICONS(ad: string) {

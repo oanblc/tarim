@@ -2,13 +2,15 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getParcelDetail } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
-import { ChevronRightIcon, PlusIcon, RECORD_TYPE_ICONS, GOREV_DURUM_LABEL, GOREV_DURUM_STYLE, StarIcon } from "@/components/icons";
+import { ChevronRightIcon, PlusIcon, RECORD_TYPE_ICONS, GOREV_DURUM_LABEL, GOREV_DURUM_BADGE, StarIcon } from "@/components/icons";
 import { ParcelDrawMap } from "@/components/map/ParcelDrawMap";
 import { GorevDurumSelect } from "@/components/GorevDurumSelect";
 import { SilButonu } from "@/components/SilButonu";
 import { ParselHaritaKayitDuzeni } from "@/components/ParselHaritaKayitDuzeni";
 import { removeGorevAction, removeRecordAction } from "@/lib/actions";
 import { parselCesitleri, agacAraligiHesapla } from "@/lib/parsel";
+import { Button } from "@/components/ui/button/Button";
+import { Badge } from "@/components/ui/badge/Badge";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -48,9 +50,7 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
             {cesitler.length > 0 && (
               <span className="flex flex-wrap items-center gap-1.5">
                 {cesitler.map((c) => (
-                  <span key={c} className="text-[13px] font-semibold bg-primary-bg text-[#4A4F45] px-3 py-1.5 rounded-full">
-                    {c}
-                  </span>
+                  <Badge key={c}>{c}</Badge>
                 ))}
               </span>
             )}
@@ -74,37 +74,21 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
             </span>
           </div>
           <div className="flex items-center gap-2">
-            <Link
-              href={`/parseller/${parcel.id}/duzenle`}
-              className="px-4 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            <Button href={`/parseller/${parcel.id}/duzenle`} variant="outline">
               Düzenle
-            </Link>
-            <Link
-              href={`/parseller/${parcel.id}/sulama-uyumu`}
-              className="px-4 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            </Button>
+            <Button href={`/parseller/${parcel.id}/sulama-uyumu`} variant="outline">
               Sulama Uyumu
-            </Link>
-            <Link
-              href={`/parseller/${parcel.id}/beslenme`}
-              className="px-4 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            </Button>
+            <Button href={`/parseller/${parcel.id}/beslenme`} variant="outline">
               Beslenme Programı
-            </Link>
-            <Link
-              href={`/parseller/${parcel.id}/fertigasyon`}
-              className="px-4 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            </Button>
+            <Button href={`/parseller/${parcel.id}/fertigasyon`} variant="outline">
               Fertigasyon
-            </Link>
-            <Link
-              href={`/parseller/${parcel.id}/yeni-kayit`}
-              className="flex items-center gap-2 bg-primary text-cream px-4 py-2.5 rounded-[10px] text-[13.5px] font-bold"
-            >
-              <PlusIcon size={15} className="text-cream" />
+            </Button>
+            <Button href={`/parseller/${parcel.id}/yeni-kayit`} startIcon={<PlusIcon size={15} className="text-cream" />}>
               Yeni Kayıt Ekle
-            </Link>
+            </Button>
           </div>
         </div>
       </div>
@@ -203,9 +187,7 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
                 gorevler.map(({ gorev, sorumlu }) => (
                   <div key={gorev.id} className="bg-white border border-border rounded-xl p-3.5">
                     <div className="flex items-center justify-between gap-2">
-                      <span className="text-[11.5px] font-bold text-primary bg-primary-bg px-2.5 py-0.5 rounded-full">
-                        {gorev.konu}
-                      </span>
+                      <Badge>{gorev.konu}</Badge>
                       <GorevDurumSelect gorevId={gorev.id} parcelId={parcel.id} durum={gorev.durum} />
                     </div>
                     <div className="text-[13px] font-semibold mt-2">{gorev.gozlem}</div>
@@ -253,9 +235,9 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
                           <span className="text-[13.5px] font-bold">{type?.ad ?? "Kayıt"}</span>
                           <div className="flex items-center gap-1.5">
                             {record.durum && (
-                              <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${GOREV_DURUM_STYLE[record.durum] ?? "bg-cream text-text-secondary"}`}>
+                              <Badge color={GOREV_DURUM_BADGE[record.durum] ?? "light"} size="sm">
                                 {GOREV_DURUM_LABEL[record.durum] ?? record.durum}
-                              </span>
+                              </Badge>
                             )}
                             <span className="text-[11.5px] text-text-muted">{record.donemBitis ? `${formatDate(record.tarih)} – ${formatDate(record.donemBitis)}` : formatDate(record.tarih)}</span>
                           </div>
