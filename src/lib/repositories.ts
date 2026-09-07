@@ -171,6 +171,8 @@ export const isiGunlukleri = {
   list: () => readCollection<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri),
   listByCustomer: async (customerId: string) =>
     (await readCollection<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri)).filter((k) => k.customerId === customerId),
+  listByParcel: async (parcelId: string) =>
+    (await readCollection<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri)).filter((k) => k.parcelId === parcelId),
   create: (data: Omit<IsiGunlukKaydi, "id" | "createdAt">) =>
     insertOne<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri, {
       ...data,

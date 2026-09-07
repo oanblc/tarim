@@ -148,14 +148,18 @@ export interface IsiHaftasi {
   createdAt: string;
 }
 
-// Günlük ısı/iklim kaydı: Open-Meteo'dan otomatik çekilen, müşteri bazlı
-// günlük sıcaklık/yağış verisi. Haftalık Isı Toplamı'ndan (elle/haftalık)
-// bağımsız — sürekli, günlük bir takip sağlar. Parsel sınırı haritada
-// çizilince/güncellenince (updateParcelBoundaryAction) veya günlük worker
+// Günlük ısı/iklim kaydı: Open-Meteo'dan otomatik çekilen, parsel bazlı
+// günlük sıcaklık/yağış verisi (her parselin kendi konumu üzerinden ayrı
+// çekilir — aynı müşterinin farklı parselleri farklı mikroklimada olabilir).
+// `customerId` haftalık özet gibi müşteri geneli görünümlerin filtrelemesi
+// için ayrıca tutulur. Haftalık Isı Toplamı'ndan (elle/haftalık) bağımsız —
+// sürekli, günlük bir takip sağlar. Parsel sınırı haritada çizilince/
+// güncellenince (updateParcelBoundaryAction) veya günlük worker
 // (/api/cron/gunluk-isi) tarafından otomatik doldurulur (bkz. src/lib/isiGunluk.ts).
 export interface IsiGunlukKaydi {
   id: string;
   customerId: string;
+  parcelId: string;
   tarih: string; // YYYY-MM-DD
   ortSicaklik?: number;
   minSicaklik?: number;

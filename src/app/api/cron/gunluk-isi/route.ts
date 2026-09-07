@@ -11,5 +11,5 @@ export async function GET(req: NextRequest) {
   }
 
   const sonuclar = await tumMusterilerIcinGunlukIsiGuncelle(3);
-  return NextResponse.json({ ok: true, musteriSayisi: sonuclar.length, sonuclar });
+  return NextResponse.json({ ok: true, parselSayisi: sonuclar.length, sonuclar });
 }

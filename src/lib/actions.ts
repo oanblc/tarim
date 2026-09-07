@@ -466,7 +466,7 @@ export async function updateParcelBoundaryAction(
   // Parsele konum kazandırıldığında (ilk çizim veya sınır güncellemesi),
   // Isı Günlüğü'nü de otomatik olarak son 30 güne tamamlar — elle
   // "Son 30 Günü Çek" demeye gerek kalmasın diye.
-  gunlukIsiGuncelle(customer.id, 30).catch(() => {});
+  gunlukIsiGuncelle(parcelId, 30).catch(() => {});
   revalidatePath("/raporlar/isi-gunlugu");
 
   return { ok: true, alanDonum };

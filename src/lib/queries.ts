@@ -274,15 +274,20 @@ export async function getFertigasyonView(parcelId: string, user: User) {
   return { parcel, customer, kayitlar };
 }
 
-export async function getIsiGunluguView(customerId: string, user: User) {
-  const [allCustomers, allKayitlar] = await Promise.all([customers.list(), isiGunlukleri.listByCustomer(customerId)]);
+export async function getIsiGunluguView(parcelId: string, user: User) {
+  const [allCustomers, allParcels, allKayitlar] = await Promise.all([
+    customers.list(),
+    parcels.list(),
+    isiGunlukleri.listByParcel(parcelId),
+  ]);
 
-  const customer = allCustomers.find((c) => c.id === customerId);
-  if (!customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) return null;
+  const parcel = allParcels.find((p) => p.id === parcelId);
+  const customer = parcel && allCustomers.find((c) => c.id === parcel.customerId);
+  if (!parcel || !customer || !canAccessCustomer(user, customer.sorumluMuhendisId)) return null;
 
   const gunler = allKayitlar.slice().sort((a, b) => b.tarih.localeCompare(a.tarih));
 
-  return { customer, gunler };
+  return { customer, parcel, gunler };
 }
 
 // Haftalık Özet: bir müşterinin tanımlı Isı Toplamı haftalarına göre,
