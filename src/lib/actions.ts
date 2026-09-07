@@ -323,6 +323,24 @@ export async function createParcelAction(customerId: string, formData: FormData)
     throw new Error("Bu müşteriye parsel ekleme yetkiniz yok.");
   }
 
+  // Harita adımında çizilen sınır varsa (bkz. ParselEkleWizard), parsel
+  // konumuyla birlikte baştan kaydedilir — Isı Günlüğü'nün hemen
+  // doldurulabilmesi için (updateParcelBoundaryAction'daki gibi).
+  const sinirRaw = String(formData.get("sinir") ?? "");
+  let sinir: LatLng[] | undefined;
+  let konum: LatLng | undefined;
+  if (sinirRaw) {
+    try {
+      const parsed = JSON.parse(sinirRaw) as LatLng[];
+      if (Array.isArray(parsed) && parsed.length >= 3) {
+        sinir = parsed;
+        konum = polygonCentroid(parsed);
+      }
+    } catch {
+      // geçersiz JSON — sınırsız devam et
+    }
+  }
+
   const parcel = await parcels.create({
     customerId,
     ad: String(formData.get("ad") ?? ""),
@@ -331,7 +349,11 @@ export async function createParcelAction(customerId: string, formData: FormData)
     agacSayisi: Number(formData.get("agacSayisi") ?? 0) || undefined,
     ekimDuzeni: String(formData.get("ekimDuzeni") ?? "").trim() || undefined,
     sulamaKuyusuId: String(formData.get("sulamaKuyusuId") ?? "").trim() || undefined,
+    sinir,
+    konum,
   });
+
+  if (konum) gunlukIsiGuncelle(parcel.id, 30).catch(() => {});
 
   revalidatePath(`/musteriler/${customerId}`);
   redirect(`/parseller/${parcel.id}`);
