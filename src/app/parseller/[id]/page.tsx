@@ -2,12 +2,13 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getParcelDetail } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
-import { ChevronRightIcon, PlusIcon, RECORD_TYPE_ICONS, GOREV_DURUM_LABEL, GOREV_DURUM_STYLE } from "@/components/icons";
+import { ChevronRightIcon, PlusIcon, RECORD_TYPE_ICONS, GOREV_DURUM_LABEL, GOREV_DURUM_STYLE, StarIcon } from "@/components/icons";
 import { ParcelDrawMap } from "@/components/map/ParcelDrawMap";
 import { GorevDurumSelect } from "@/components/GorevDurumSelect";
 import { SilButonu } from "@/components/SilButonu";
 import { ParselHaritaKayitDuzeni } from "@/components/ParselHaritaKayitDuzeni";
 import { removeGorevAction, removeRecordAction } from "@/lib/actions";
+import { parselCesitleri, agacAraligiHesapla } from "@/lib/parsel";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -18,11 +19,15 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
   const user = await requireUser();
   const detail = await getParcelDetail(id, user);
   if (!detail) notFound();
-  const { parcel, customer, timeline, gorevler, kuyu } = detail;
+  const { parcel, customer, timeline, gorevler, kuyu, degerlendirmeSorulari, degerlendirmeler } = detail;
 
   const searchParams = await props.searchParams;
-  const sekme = searchParams.sekme === "gorevler" ? "gorevler" : "kayitlar";
+  const sekme =
+    searchParams.sekme === "gorevler" ? "gorevler" : searchParams.sekme === "degerlendirme" ? "degerlendirme" : "kayitlar";
   const acikGorevSayisi = gorevler.filter((g) => g.gorev.durum !== "tamamlandi").length;
+  const cesitler = parselCesitleri(parcel);
+  const aralik = parcel.agacSayisi ? agacAraligiHesapla(parcel.alanDonum, parcel.agacSayisi) : null;
+  const buYil = String(new Date().getFullYear());
 
   return (
     <div className="flex flex-col h-full">
@@ -36,13 +41,33 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
         </div>
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-5 flex-wrap">
-            <div className="text-xl font-extrabold">{parcel.ad}</div>
-            <span className="flex items-center gap-1.5 text-[13px] font-semibold bg-primary-bg text-[#4A4F45] px-3 py-1.5 rounded-full">
-              {parcel.urun}
-            </span>
+            <div>
+              <div className="text-xl font-extrabold">{parcel.ad}</div>
+              {parcel.bolge && <div className="text-[12px] text-text-muted">{parcel.bolge}</div>}
+            </div>
+            {cesitler.length > 0 && (
+              <span className="flex flex-wrap items-center gap-1.5">
+                {cesitler.map((c) => (
+                  <span key={c} className="text-[13px] font-semibold bg-primary-bg text-[#4A4F45] px-3 py-1.5 rounded-full">
+                    {c}
+                  </span>
+                ))}
+              </span>
+            )}
             <span className="text-[13px] text-text-secondary">{parcel.alanDonum} dönüm</span>
-            {parcel.agacSayisi && <span className="text-[13px] text-text-secondary">{parcel.agacSayisi.toLocaleString("tr-TR")} ağaç</span>}
-            {parcel.ekimDuzeni && <span className="text-[13px] text-text-secondary">Ekim düzeni: {parcel.ekimDuzeni}</span>}
+            {parcel.agacSayisi && (
+              <span className="text-[13px] text-text-secondary">
+                {parcel.agacSayisi.toLocaleString("tr-TR")} ağaç
+                {aralik && ` · ≈${aralik.araligiM}x${aralik.araligiM}m`}
+              </span>
+            )}
+            {!parcel.agacSayisi && parcel.ekimDuzeni && (
+              <span className="text-[13px] text-text-secondary">Ekim düzeni: {parcel.ekimDuzeni}</span>
+            )}
+            {parcel.anaclar && parcel.anaclar.length > 0 && (
+              <span className="text-[13px] text-text-secondary">Anaç: {parcel.anaclar.join(", ")}</span>
+            )}
+            {parcel.sulamaSekli && <span className="text-[13px] text-text-secondary">Sulama: {parcel.sulamaSekli}</span>}
             {kuyu && <span className="text-[13px] text-text-secondary">Kuyu: {kuyu.ad}</span>}
             <span className="text-[13px] text-text-secondary">
               {timeline[0] ? `Son ziyaret: ${formatDate(timeline[0].record.tarih)}` : "Henüz ziyaret yok"}
@@ -105,9 +130,62 @@ export default async function ParselDetayPage(props: PageProps<"/parseller/[id]"
             >
               Görevler ({acikGorevSayisi} açık)
             </Link>
+            <Link
+              href={`/parseller/${parcel.id}?sekme=degerlendirme`}
+              className={`px-3.5 py-1.5 rounded-full text-[12.5px] font-bold ${
+                sekme === "degerlendirme" ? "bg-primary text-cream" : "bg-cream text-text-secondary"
+              }`}
+            >
+              Genel Değerlendirme ({degerlendirmeler.length})
+            </Link>
           </div>
 
-          {sekme === "gorevler" ? (
+          {sekme === "degerlendirme" ? (
+            <div className="flex flex-col gap-3">
+              <Link
+                href={`/parseller/${parcel.id}/degerlendirme`}
+                className="flex items-center justify-center gap-1.5 border border-dashed border-border rounded-xl py-2.5 text-[12.5px] font-bold text-primary"
+              >
+                <PlusIcon size={13} className="text-primary" />
+                {degerlendirmeler.some((d) => d.yil === buYil) ? `${buYil} Değerlendirmesini Düzenle` : `${buYil} İçin Değerlendirme Ekle`}
+              </Link>
+
+              {degerlendirmeSorulari.length === 0 ? (
+                <div className="text-sm text-text-secondary py-8 text-center border border-dashed border-border rounded-xl">
+                  Henüz bir değerlendirme sorusu tanımlanmadı — Ayarlar&apos;dan ekleyebilirsiniz.
+                </div>
+              ) : degerlendirmeler.length === 0 ? (
+                <div className="text-sm text-text-secondary py-8 text-center border border-dashed border-border rounded-xl">
+                  Bu parsel için henüz değerlendirme girilmedi.
+                </div>
+              ) : (
+                degerlendirmeler.map((d) => (
+                  <div key={d.id} className="bg-white border border-border rounded-xl p-3.5">
+                    <div className="text-[13.5px] font-bold mb-2">{d.yil}</div>
+                    <div className="flex flex-col gap-2.5">
+                      {d.cevaplar.map((c) => {
+                        const soru = degerlendirmeSorulari.find((s) => s.id === c.soruId);
+                        if (!soru) return null;
+                        return (
+                          <div key={c.soruId}>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-[12.5px] text-[#4A4F45]">{soru.soru}</span>
+                              <span className="flex items-center gap-0.5 shrink-0">
+                                {[1, 2, 3, 4, 5].map((n) => (
+                                  <StarIcon key={n} size={13} filled={n <= c.puan} className={n <= c.puan ? "text-amber" : "text-border"} />
+                                ))}
+                              </span>
+                            </div>
+                            {c.not && <div className="text-[11.5px] text-text-muted mt-0.5">{c.not}</div>}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          ) : sekme === "gorevler" ? (
             <div className="flex flex-col gap-3">
               <Link
                 href={`/parseller/${parcel.id}/gorev-ekle`}

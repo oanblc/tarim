@@ -241,6 +241,22 @@ export function SignalIcon({ size = 19, className }: IconProps) {
   );
 }
 
+export function StarIcon({ size = 14, className, filled }: IconProps & { filled?: boolean }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" fill={filled ? "currentColor" : "none"} className={className} strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
+      <path d="m12 2 3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 6.91-1.01L12 2Z" />
+    </svg>
+  );
+}
+
+export function XIcon({ size = 12, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>
+      <path d="M18 6 6 18M6 6l12 12" />
+    </svg>
+  );
+}
+
 export function InfoIcon({ size = 15, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>

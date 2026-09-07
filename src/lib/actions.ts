@@ -17,6 +17,8 @@ import {
   beslenmePlanlari,
   beslenmeUygulamalari,
   fertigasyonKayitlari,
+  degerlendirmeSorulari,
+  parselDegerlendirmeleri,
 } from "./repositories";
 import { requireUser, canAccessCustomer } from "./session";
 import { SESSION_COOKIE, SESSION_MAX_AGE, hashPassword, signSessionToken, verifyPassword } from "./auth";
@@ -316,6 +318,29 @@ export async function removeCustomerAction(customerId: string) {
   redirect("/musteriler");
 }
 
+// "Çeşit"/"Anaç" gibi çoklu-seçim alanları client tarafta JSON dizisi olarak
+// hidden input'a yazılıyor (bkz. CokluSecimEkle) — burada güvenle çözümlenir.
+function jsonDiziAyikla(formData: FormData, key: string): string[] {
+  const raw = String(formData.get(key) ?? "");
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === "string" && v.trim().length > 0) : [];
+  } catch {
+    return [];
+  }
+}
+
+function parselOrtakAlanlariAyikla(formData: FormData) {
+  return {
+    bolge: String(formData.get("bolge") ?? "").trim() || undefined,
+    cesitler: jsonDiziAyikla(formData, "cesitler"),
+    anaclar: jsonDiziAyikla(formData, "anaclar"),
+    sulamaSekli: String(formData.get("sulamaSekli") ?? "").trim() || undefined,
+    sulamaSekliDetay: String(formData.get("sulamaSekliDetay") ?? "").trim() || undefined,
+  };
+}
+
 export async function createParcelAction(customerId: string, formData: FormData) {
   const user = await requireUser();
   const customer = (await customers.list()).find((c) => c.id === customerId);
@@ -344,11 +369,10 @@ export async function createParcelAction(customerId: string, formData: FormData)
   const parcel = await parcels.create({
     customerId,
     ad: String(formData.get("ad") ?? ""),
-    urun: String(formData.get("urun") ?? ""),
     alanDonum: Number(formData.get("alanDonum") ?? 0),
     agacSayisi: Number(formData.get("agacSayisi") ?? 0) || undefined,
-    ekimDuzeni: String(formData.get("ekimDuzeni") ?? "").trim() || undefined,
     sulamaKuyusuId: String(formData.get("sulamaKuyusuId") ?? "").trim() || undefined,
+    ...parselOrtakAlanlariAyikla(formData),
     sinir,
     konum,
   });
@@ -364,11 +388,10 @@ export async function updateParcelAction(parcelId: string, formData: FormData) {
 
   await parcels.update(parcelId, {
     ad: String(formData.get("ad") ?? ""),
-    urun: String(formData.get("urun") ?? ""),
     alanDonum: Number(formData.get("alanDonum") ?? 0),
     agacSayisi: Number(formData.get("agacSayisi") ?? 0) || undefined,
-    ekimDuzeni: String(formData.get("ekimDuzeni") ?? "").trim() || undefined,
     sulamaKuyusuId: String(formData.get("sulamaKuyusuId") ?? "").trim() || undefined,
+    ...parselOrtakAlanlariAyikla(formData),
   });
 
   revalidatePath(`/parseller/${parcelId}`);
@@ -380,18 +403,20 @@ export async function updateParcelAction(parcelId: string, formData: FormData) {
 // beslenme planı + uygulamaları) siler — parselin kendisine dokunmaz. Hem
 // tekil parsel silmede hem müşteri silmede (her parseli için) kullanılır.
 async function cascadeDeleteParcelData(parcelId: string) {
-  const [allRecords, allGorevler, allSulamaPlanlari, allBeslenmePlanlari, allBeslenmeUygulamalari] = await Promise.all([
+  const [allRecords, allGorevler, allSulamaPlanlari, allBeslenmePlanlari, allBeslenmeUygulamalari, allDegerlendirmeler] = await Promise.all([
     records.list(),
     gorevler.list(),
     sulamaPlanlari.list(),
     beslenmePlanlari.list(),
     beslenmeUygulamalari.list(),
+    parselDegerlendirmeleri.listByParcel(parcelId),
   ]);
 
   await Promise.all([
     ...allRecords.filter((r) => r.parcelId === parcelId).map((r) => records.remove(r.id)),
     ...allGorevler.filter((g) => g.parcelId === parcelId).map((g) => gorevler.remove(g.id)),
     ...allSulamaPlanlari.filter((p) => p.parcelId === parcelId).map((p) => sulamaPlanlari.remove(p.id)),
+    ...allDegerlendirmeler.map((d) => parselDegerlendirmeleri.remove(d.id)),
   ]);
 
   const parselinPlanlari = allBeslenmePlanlari.filter((p) => p.parcelId === parcelId);
@@ -1058,5 +1083,68 @@ export async function haftalikSicaklikCekAction(
 
   revalidatePath(`/musteriler/${customerId}/isi-toplami`);
   return { ok: true };
+}
+
+// --- Genel Değerlendirme soruları (Ayarlar, sadece yönetici) -------------
+
+export async function createDegerlendirmeSorusuAction(formData: FormData) {
+  const user = await requireUser();
+  if (user.rol !== "admin") throw new Error("Bu işlem için yönetici yetkisi gerekir.");
+
+  const soru = String(formData.get("soru") ?? "").trim();
+  if (!soru) return;
+
+  const mevcutlar = await degerlendirmeSorulari.list();
+  const siraNo = mevcutlar.length > 0 ? Math.max(...mevcutlar.map((s) => s.siraNo)) + 1 : 1;
+  await degerlendirmeSorulari.create({ soru, siraNo });
+
+  revalidatePath("/ayarlar");
+}
+
+export async function updateDegerlendirmeSorusuAction(soruId: string, formData: FormData) {
+  const user = await requireUser();
+  if (user.rol !== "admin") throw new Error("Bu işlem için yönetici yetkisi gerekir.");
+
+  const soru = String(formData.get("soru") ?? "").trim();
+  if (!soru) return;
+
+  await degerlendirmeSorulari.update(soruId, { soru });
+  revalidatePath("/ayarlar");
+}
+
+export async function removeDegerlendirmeSorusuAction(soruId: string) {
+  const user = await requireUser();
+  if (user.rol !== "admin") throw new Error("Bu işlem için yönetici yetkisi gerekir.");
+
+  await degerlendirmeSorulari.remove(soruId);
+  revalidatePath("/ayarlar");
+}
+
+// --- Parsel Genel Değerlendirmesi (yılda bir) -----------------------------
+
+export async function saveParselDegerlendirmeAction(parcelId: string, yil: string, formData: FormData) {
+  await requireParcelAccess(parcelId);
+
+  const sorular = await degerlendirmeSorulari.list();
+  const cevaplar = sorular
+    .map((s) => {
+      const puanRaw = formData.get(`puan_${s.id}`);
+      const not = String(formData.get(`not_${s.id}`) ?? "").trim() || undefined;
+      const puan = puanRaw ? Number(puanRaw) : 0;
+      if (!puan) return null;
+      return { soruId: s.id, puan, not };
+    })
+    .filter((c) => c !== null);
+
+  const mevcut = (await parselDegerlendirmeleri.listByParcel(parcelId)).find((d) => d.yil === yil);
+  if (mevcut) {
+    await parselDegerlendirmeleri.update(mevcut.id, { cevaplar });
+  } else {
+    await parselDegerlendirmeleri.create({ parcelId, yil, cevaplar });
+  }
+
+  revalidatePath(`/parseller/${parcelId}`);
+  revalidatePath(`/parseller/${parcelId}/degerlendirme`);
+  redirect(`/parseller/${parcelId}`);
 }
 

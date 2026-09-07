@@ -13,11 +13,15 @@ import {
   beslenmeUygulamalari,
   fertigasyonKayitlari,
   isiGunlukleri,
+  degerlendirmeSorulari,
+  parselDegerlendirmeleri,
 } from "./repositories";
 import { canAccessCustomer } from "./session";
 import { sulamaUyumuHesapla, haftalikGdd, kumulatifGddHesapla } from "./tarim";
 import { beslenmePlaniHesapla } from "./beslenme";
 import { fertigasyonHesapla } from "./fertigasyon";
+import { parselCesitleri, type ParselOnerileri } from "./parsel";
+import type { Parcel } from "@/types";
 import { gunlukVeridenHaftalarUret } from "./isiGunluk";
 import type { User } from "@/types";
 
@@ -122,7 +126,7 @@ export async function getCustomerDetail(customerId: string, user: User) {
 }
 
 export async function getParcelDetail(parcelId: string, user: User) {
-  const [allParcels, allCustomers, allRecords, allTypes, allUsers, allGorevler, allKuyular] = await Promise.all([
+  const [allParcels, allCustomers, allRecords, allTypes, allUsers, allGorevler, allKuyular, sorular, degerlendirmeler] = await Promise.all([
     parcels.list(),
     customers.list(),
     records.listByParcel(parcelId),
@@ -130,6 +134,8 @@ export async function getParcelDetail(parcelId: string, user: User) {
     users.list(),
     gorevler.listByParcel(parcelId),
     sulamaKuyulari.list(),
+    degerlendirmeSorulari.list(),
+    parselDegerlendirmeleri.listByParcel(parcelId),
   ]);
 
   const parcel = allParcels.find((p) => p.id === parcelId);
@@ -152,7 +158,9 @@ export async function getParcelDetail(parcelId: string, user: User) {
     .sort((a, b) => b.tarih.localeCompare(a.tarih))
     .map((g) => ({ gorev: g, sorumlu: allUsers.find((u) => u.id === g.sorumluId) }));
 
-  return { parcel, customer, timeline, gorevler: gorevlerListesi, kuyu };
+  const degerlendirmelerSirali = degerlendirmeler.slice().sort((a, b) => b.yil.localeCompare(a.yil));
+
+  return { parcel, customer, timeline, gorevler: gorevlerListesi, kuyu, degerlendirmeSorulari: sorular, degerlendirmeler: degerlendirmelerSirali };
 }
 
 export async function getSulamaKuyulariView(customerId: string, user: User) {
@@ -497,5 +505,32 @@ export async function getSulamaRaporuView(
     customer,
     tarihler,
     gruplar: Array.from(gruplar.entries()).map(([kuyu, satirlar]) => ({ kuyu, satirlar })),
+  };
+}
+
+// Parsel Bölgesi/Adı/Çeşit/Anaç/Sulama Şekli alanları için autocomplete
+// önerileri — sadece aynı müşterinin diğer parselleri (müşteriler arası veri
+// karışmasın diye). `src/lib/parsel.ts` client bileşenlerden de import
+// edildiği için bu, repository'ye dokunan kısım burada, queries.ts'te (sunucu
+// tarafı) tutuluyor.
+export async function parselOnerileriCikar(customerId: string, haricParcelId?: string): Promise<ParselOnerileri> {
+  const musteriParselleri = (await parcels.listByCustomer(customerId)).filter((p) => p.id !== haricParcelId);
+
+  const topla = (fn: (p: Parcel) => string[] | string | undefined) =>
+    Array.from(
+      new Set(
+        musteriParselleri.flatMap((p) => {
+          const v = fn(p);
+          return Array.isArray(v) ? v : v ? [v] : [];
+        }),
+      ),
+    );
+
+  return {
+    bolge: topla((p) => p.bolge),
+    ad: topla((p) => p.ad),
+    cesit: topla((p) => parselCesitleri(p)),
+    anac: topla((p) => p.anaclar),
+    sulamaSekli: topla((p) => p.sulamaSekli),
   };
 }

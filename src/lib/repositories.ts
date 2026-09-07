@@ -14,6 +14,8 @@ import type {
   BeslenmeUygulamaKaydi,
   FertigasyonKaydi,
   IsiGunlukKaydi,
+  DegerlendirmeSorusu,
+  ParselDegerlendirmesi,
 } from "@/types";
 
 const COLLECTIONS = {
@@ -31,6 +33,8 @@ const COLLECTIONS = {
   beslenmeUygulamalari: "beslenme-uygulamalari",
   fertigasyonKayitlari: "fertigasyon-kayitlari",
   isiGunlukleri: "isi-gunlukleri",
+  degerlendirmeSorulari: "degerlendirme-sorulari",
+  parselDegerlendirmeleri: "parsel-degerlendirmeleri",
 } as const;
 
 export const users = {
@@ -181,5 +185,28 @@ export const isiGunlukleri = {
     }),
   update: (id: string, patch: Partial<IsiGunlukKaydi>) => updateOne<IsiGunlukKaydi>(COLLECTIONS.isiGunlukleri, id, patch),
   remove: (id: string) => deleteOne(COLLECTIONS.isiGunlukleri, id),
+};
+
+export const degerlendirmeSorulari = {
+  list: async () => (await readCollection<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari)).sort((a, b) => a.siraNo - b.siraNo),
+  create: (data: Omit<DegerlendirmeSorusu, "id">) =>
+    insertOne<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari, { ...data, id: newId() }),
+  update: (id: string, patch: Partial<DegerlendirmeSorusu>) =>
+    updateOne<DegerlendirmeSorusu>(COLLECTIONS.degerlendirmeSorulari, id, patch),
+  remove: (id: string) => deleteOne(COLLECTIONS.degerlendirmeSorulari, id),
+};
+
+export const parselDegerlendirmeleri = {
+  listByParcel: async (parcelId: string) =>
+    (await readCollection<ParselDegerlendirmesi>(COLLECTIONS.parselDegerlendirmeleri)).filter((d) => d.parcelId === parcelId),
+  create: (data: Omit<ParselDegerlendirmesi, "id" | "createdAt">) =>
+    insertOne<ParselDegerlendirmesi>(COLLECTIONS.parselDegerlendirmeleri, {
+      ...data,
+      id: newId(),
+      createdAt: new Date().toISOString(),
+    }),
+  update: (id: string, patch: Partial<ParselDegerlendirmesi>) =>
+    updateOne<ParselDegerlendirmesi>(COLLECTIONS.parselDegerlendirmeleri, id, patch),
+  remove: (id: string) => deleteOne(COLLECTIONS.parselDegerlendirmeleri, id),
 };
 

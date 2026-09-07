@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { getCustomerDetail } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
+import { parselCesitleri } from "@/lib/parsel";
 import {
   ChevronRightIcon,
   PlusIcon,
@@ -201,7 +202,7 @@ export default async function MusteriDetayPage(props: PageProps<"/musteriler/[id
                           )}
                         </div>
                         <div className="text-[12px] text-text-secondary truncate mt-0.5">
-                          {parcel.urun} · son kayıt {formatDate(lastRecordDate)}
+                          {parselCesitleri(parcel).join(", ") || "—"} · son kayıt {formatDate(lastRecordDate)}
                         </div>
                       </div>
                       <span className="text-[11.5px] font-bold text-text-secondary bg-cream px-2.5 py-1 rounded-full shrink-0">

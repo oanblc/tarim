@@ -30,11 +30,18 @@ export interface LatLng {
 export interface Parcel {
   id: string;
   customerId: string;
+  bolge?: string; // mevkii/bölge adı — aynı bölgede birden fazla parsel olabilir
   ad: string;
-  urun: string; // ekili ürün/kültür
+  /** @deprecated bkz. `cesitler` — eski tekil kayıtlar için geriye dönük okunuyor */
+  urun?: string;
+  cesitler?: string[]; // dikili ürün(ler)/çeşit(ler) — birden fazla olabilir
+  anaclar?: string[]; // anaç bilgisi — birden fazla olabilir
   alanDonum: number;
-  agacSayisi?: number; // toplam ağaç/fidan sayısı
-  ekimDuzeni?: string; // dikim aralığı, örn. "7 x 2,5 m"
+  agacSayisi?: number; // toplam ağaç/fidan sayısı — ağaç aralığı bundan ve alandan türetilir
+  /** @deprecated ağaç aralığı artık agacSayisi/alanDonum'dan hesaplanıyor — eski serbest metin kayıtlar için geriye dönük okunuyor */
+  ekimDuzeni?: string;
+  sulamaSekli?: string; // "Damla", "Yağmurlama", "Salma" ...
+  sulamaSekliDetay?: string; // serbest metin açıklama
   sulamaKuyusuId?: string; // parselin bağlı olduğu SulamaKuyusu (sulama raporu gruplaması için)
   konum?: LatLng; // parselin merkez noktası (harita ortalama/pin için)
   sinir?: LatLng[]; // poligon köşe noktaları, çizilmemişse boş
@@ -227,5 +234,24 @@ export interface FertigasyonKaydi {
   dozAgac: number; // g/ağaç (AS21, K2SO4, Demir) veya cc/ağaç (H3PO4)
   ambalajBoyutu: number; // çuval/bidon başına kg (veya H3PO4 için litre)
   not?: string;
+  createdAt: string;
+}
+
+// Ayarlar'dan yönetilen, tüm sistemde ortak Genel Değerlendirme soru listesi
+// (ör. "Meyve rengi hoşumuza gitti mi?"). Her parsel için yılda bir doldurulur.
+export interface DegerlendirmeSorusu {
+  id: string;
+  soru: string;
+  siraNo: number;
+}
+
+// Bir parselin bir yıla ait Genel Değerlendirme cevapları — DegerlendirmeSorusu
+// listesindeki her soruya 1-5 puan + opsiyonel not. `yil` + `parcelId` birlikte
+// tekil (aynı yıl için tekrar doldurulursa üzerine güncellenir).
+export interface ParselDegerlendirmesi {
+  id: string;
+  parcelId: string;
+  yil: string; // "2026" gibi
+  cevaplar: { soruId: string; puan: number; not?: string }[];
   createdAt: string;
 }

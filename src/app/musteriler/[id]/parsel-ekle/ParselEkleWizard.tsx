@@ -3,6 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { ParcelBoundaryPicker } from "@/components/map/ParcelBoundaryPicker";
+import { OneriliMetin } from "@/components/OneriliMetin";
+import { CokluSecimEkle } from "@/components/CokluSecimEkle";
+import { agacAraligiHesapla, type ParselOnerileri } from "@/lib/parsel";
 import type { LatLng, SulamaKuyusu } from "@/types";
 
 // Parsel oluşturma önce harita üzerinde sınır çizmeyi, sonra ad/ürün gibi
@@ -12,16 +15,20 @@ export function ParselEkleWizard({
   customerId,
   customerAd,
   kuyular,
+  oneriler,
   action,
 }: {
   customerId: string;
   customerAd: string;
   kuyular: SulamaKuyusu[];
+  oneriler: ParselOnerileri;
   action: (formData: FormData) => void;
 }) {
   const [adim, setAdim] = useState<"harita" | "form">("harita");
   const [sinir, setSinir] = useState<LatLng[] | null>(null);
   const [alanDonum, setAlanDonum] = useState(0);
+  const [agacSayisi, setAgacSayisi] = useState<number | undefined>(undefined);
+  const aralik = agacSayisi ? agacAraligiHesapla(alanDonum, agacSayisi) : null;
 
   if (adim === "harita") {
     return (
@@ -61,26 +68,28 @@ export function ParselEkleWizard({
             </button>
           </div>
 
-          <label className="block">
-            <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Parsel Adı</div>
-            <input
-              name="ad"
-              required
-              autoFocus
-              placeholder="Örn. Parsel 1 – Kuzey Tarla"
-              className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13.5px] outline-none focus:border-primary"
-            />
-          </label>
           <div className="grid grid-cols-2 gap-4">
             <label className="block">
-              <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Ekili Ürün</div>
-              <input
-                name="urun"
-                required
-                placeholder="Örn. Mısır"
-                className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13.5px] outline-none focus:border-primary"
-              />
+              <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Parsel Bölgesi (opsiyonel)</div>
+              <OneriliMetin name="bolge" placeholder="Örn. Alihocalı Mevkii" oneriler={oneriler.bolge} />
             </label>
+            <label className="block">
+              <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Parsel Adı</div>
+              <OneriliMetin name="ad" placeholder="Örn. Kuzey Tarla" oneriler={oneriler.ad} required />
+            </label>
+          </div>
+
+          <label className="block">
+            <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Dikili Ürün (Çeşit)</div>
+            <CokluSecimEkle name="cesitler" oneriler={oneriler.cesit} placeholder="Örn. Valencia Portakal" />
+          </label>
+
+          <label className="block">
+            <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Anaç (opsiyonel)</div>
+            <CokluSecimEkle name="anaclar" oneriler={oneriler.anac} placeholder="Örn. Volkameriana" />
+          </label>
+
+          <div className="grid grid-cols-2 gap-4">
             <label className="block">
               <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Alan (dönüm)</div>
               <input
@@ -92,9 +101,6 @@ export function ParselEkleWizard({
                 className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13.5px] outline-none focus:border-primary"
               />
             </label>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
             <label className="block">
               <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Ağaç Sayısı (opsiyonel)</div>
               <input
@@ -103,14 +109,27 @@ export function ParselEkleWizard({
                 step="1"
                 min={0}
                 placeholder="Örn. 2800"
+                onChange={(e) => setAgacSayisi(Number(e.target.value) || undefined)}
                 className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13.5px] outline-none focus:border-primary"
               />
+              {aralik && (
+                <div className="text-[11.5px] text-text-muted mt-1.5">
+                  ≈ {aralik.m2PerAgac} m²/ağaç · yaklaşık {aralik.araligiM} x {aralik.araligiM} m dikim aralığı
+                </div>
+              )}
+            </label>
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
+            <label className="block">
+              <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Sulama Şekli (opsiyonel)</div>
+              <OneriliMetin name="sulamaSekli" placeholder="Örn. Damla" oneriler={oneriler.sulamaSekli} />
             </label>
             <label className="block">
-              <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Ekim Düzeni (opsiyonel)</div>
+              <div className="text-[12.5px] font-bold text-[#4A4F45] mb-1.5">Sulama Şekli Detayı (opsiyonel)</div>
               <input
-                name="ekimDuzeni"
-                placeholder="Örn. 7 x 2,5 m"
+                name="sulamaSekliDetay"
+                placeholder="Örn. 4 lt/sa damlatıcı, 1m aralıklı"
                 className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13.5px] outline-none focus:border-primary"
               />
             </label>

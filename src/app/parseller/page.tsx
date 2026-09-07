@@ -3,6 +3,7 @@ import { parcels, customers } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { MapIcon } from "@/components/icons";
 import { SayfaBasligi } from "@/components/SayfaBasligi";
+import { parselCesitleri } from "@/lib/parsel";
 
 export default async function ParsellerPage() {
   const user = await requireUser();
@@ -34,7 +35,7 @@ export default async function ParsellerPage() {
                   <span className="text-[14px] font-bold">{parcel.ad}</span>
                   <span className="text-xs text-text-secondary font-semibold">{parcel.alanDonum} dönüm</span>
                 </div>
-                <div className="text-xs text-text-secondary">{parcel.urun}</div>
+                <div className="text-xs text-text-secondary">{parselCesitleri(parcel).join(", ") || "—"}</div>
                 <div className="text-xs text-text-muted mt-2">{customer?.ad}</div>
               </Link>
             );

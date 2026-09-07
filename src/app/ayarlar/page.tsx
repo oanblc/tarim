@@ -1,14 +1,19 @@
 import Link from "next/link";
-import { recordTypes, users } from "@/lib/repositories";
+import { recordTypes, users, degerlendirmeSorulari } from "@/lib/repositories";
 import { requireUser } from "@/lib/session";
-import { removeUserAction } from "@/lib/actions";
+import {
+  removeUserAction,
+  createDegerlendirmeSorusuAction,
+  updateDegerlendirmeSorusuAction,
+  removeDegerlendirmeSorusuAction,
+} from "@/lib/actions";
 import { PlusIcon, RECORD_TYPE_ICONS, SettingsIcon } from "@/components/icons";
 import { SilButonu } from "@/components/SilButonu";
 import { SayfaBasligi } from "@/components/SayfaBasligi";
 
 export default async function AyarlarPage() {
   const user = await requireUser();
-  const [types, allUsers] = await Promise.all([recordTypes.list(), users.list()]);
+  const [types, allUsers, sorular] = await Promise.all([recordTypes.list(), users.list(), degerlendirmeSorulari.list()]);
 
   return (
     <div className="p-8 lg:p-10">
@@ -39,6 +44,45 @@ export default async function AyarlarPage() {
           })}
         </div>
       </div>
+
+      {user.rol === "admin" && (
+        <div className="bg-white border border-border rounded-2xl p-6 mb-6">
+          <div className="text-[15px] font-bold mb-1">Genel Değerlendirme Soruları</div>
+          <div className="text-[13px] text-text-secondary mb-4">
+            Parsel sayfasındaki, yılda bir doldurulan Genel Değerlendirme&apos;de sorulacak sorular (1-5 puan + not).
+          </div>
+          <div className="flex flex-col gap-2 mb-3">
+            {sorular.map((s) => (
+              <div key={s.id} className="flex items-center gap-2 border border-border rounded-xl px-3.5 py-2">
+                <form action={updateDegerlendirmeSorusuAction.bind(null, s.id)} className="flex-1 flex items-center gap-2">
+                  <input
+                    name="soru"
+                    defaultValue={s.soru}
+                    className="flex-1 border border-transparent focus:border-border rounded-lg px-2 py-1.5 text-[13px] outline-none"
+                  />
+                  <button type="submit" className="text-[11.5px] font-bold text-primary shrink-0">
+                    Kaydet
+                  </button>
+                </form>
+                <SilButonu onSil={removeDegerlendirmeSorusuAction.bind(null, s.id)} etiket="Sil" mesaj={`"${s.soru}" sorusunu silmek istediğine emin misin?`} />
+              </div>
+            ))}
+            {sorular.length === 0 && <div className="text-[13px] text-text-muted py-2">Henüz soru eklenmedi.</div>}
+          </div>
+          <form action={createDegerlendirmeSorusuAction} className="flex items-center gap-2">
+            <input
+              name="soru"
+              required
+              placeholder="Örn. Meyve rengi hoşumuza gitti mi?"
+              className="flex-1 border border-border rounded-[9px] px-3.5 py-2.5 text-[13px] outline-none focus:border-primary"
+            />
+            <button type="submit" className="flex items-center gap-1.5 px-4 py-2.5 rounded-[9px] bg-primary text-cream text-[12.5px] font-bold whitespace-nowrap">
+              <PlusIcon size={13} className="text-cream" />
+              Soru Ekle
+            </button>
+          </form>
+        </div>
+      )}
 
       {user.rol === "admin" && (
         <div className="bg-white border border-border rounded-2xl p-6">
