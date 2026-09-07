@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { logoutAction } from "@/lib/actions";
-import { HomeIcon, UsersIcon, MapIcon, RecordsIcon, ReportsIcon, SettingsIcon, ClipboardIcon } from "./icons";
+import { HomeIcon, UsersIcon, MapIcon, RecordsIcon, ReportsIcon, SettingsIcon, ClipboardIcon, SignalIcon } from "./icons";
 
 const NAV_ITEMS = [
   { href: "/", label: "Pano", icon: HomeIcon, match: (p: string) => p === "/" },
@@ -12,6 +12,7 @@ const NAV_ITEMS = [
   { href: "/kayitlar", label: "Kayıtlar", icon: RecordsIcon, match: (p: string) => p.startsWith("/kayitlar") },
   { href: "/gorevler", label: "Görevler", icon: ClipboardIcon, match: (p: string) => p.startsWith("/gorevler") },
   { href: "/raporlar", label: "Raporlar", icon: ReportsIcon, match: (p: string) => p.startsWith("/raporlar") },
+  { href: "/toprak", label: "TOPRAQ", icon: SignalIcon, match: (p: string) => p.startsWith("/toprak") },
 ];
 
 function initialsOf(name: string) {

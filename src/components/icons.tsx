@@ -230,6 +230,17 @@ export function ThermometerIcon({ size = 15, className }: IconProps) {
   );
 }
 
+export function SignalIcon({ size = 19, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>
+      <circle cx="6" cy="18" r="1.6" fill="currentColor" stroke="none" />
+      <path d="M6 14a4 4 0 0 1 4 4" />
+      <path d="M6 10a8 8 0 0 1 8 8" />
+      <path d="M6 6a12 12 0 0 1 12 12" />
+    </svg>
+  );
+}
+
 export function InfoIcon({ size = 15, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>
