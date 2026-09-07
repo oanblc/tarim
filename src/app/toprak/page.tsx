@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requireUser } from "@/lib/session";
 import { topraqCiftlikleriGetir, getTopraqOverview } from "@/lib/topraq";
 import { ThermometerIcon, DropletIcon } from "@/components/icons";
@@ -118,7 +119,7 @@ export default async function ToprakPage(props: PageProps<"/toprak">) {
                 <table className="w-full border-collapse text-[12.5px]">
                   <thead>
                     <tr className="bg-[#FAF9F4] border-b border-border">
-                      {["Tarla", "Sensör", "Değer", "Son Güncelleme"].map((h) => (
+                      {["Tarla", "Sensör", "Değer", "Son Güncelleme", ""].map((h) => (
                         <th
                           key={h}
                           className="text-right first:text-left px-3 py-3 font-bold text-text-secondary uppercase tracking-wide text-[10.5px] whitespace-nowrap"
@@ -135,6 +136,13 @@ export default async function ToprakPage(props: PageProps<"/toprak">) {
                         <td className="px-3 py-2.5 text-right text-text-secondary">{n.label}</td>
                         <td className="px-3 py-2.5 text-right font-semibold text-primary">{n.degerMetni || "veri yok"}</td>
                         <td className="px-3 py-2.5 text-right text-text-secondary whitespace-nowrap">{n.sonGuncelleme ?? "—"}</td>
+                        <td className="px-3 py-2.5 text-right whitespace-nowrap">
+                          {n.fieldId && (
+                            <Link href={`/toprak/nem/${n.fieldId}/${n.deviceId}?cid=${seciliCiftlik}`} className="text-primary font-bold">
+                              Derinlik Profili →
+                            </Link>
+                          )}
+                        </td>
                       </tr>
                     ))}
                   </tbody>

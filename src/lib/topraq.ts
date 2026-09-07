@@ -42,6 +42,42 @@ export type TopraqOverview = {
   nemSensorleri: TopraqNemSensoru[];
 };
 
+// Ağırlıklı Kök Bölgesi Nem İndeksi — 2 saatlik bir nokta. Aynı günün 20/40/
+// 60/80cm ağırlıkları (o günkü fark yüzdesi) bu noktaya da uygulanır.
+export type TopraqNemNoktasi = {
+  t: string; // "YYYY-MM-DDTHH:mm"
+  v20: number;
+  v40: number;
+  v60: number;
+  v80: number;
+  debi: number;
+  w20: number;
+  w40: number;
+  w60: number;
+  w80: number;
+  weighted: number;
+};
+
+export type TopraqNemGunu = {
+  date: string; // dd.MM.yyyy
+  r20: number;
+  r40: number;
+  r60: number;
+  r80: number;
+  w20: number;
+  w40: number;
+  w60: number;
+  w80: number;
+  sulama: boolean;
+};
+
+export type TopraqNemProfili = {
+  fieldName: string;
+  deviceLabel: string;
+  buckets: TopraqNemNoktasi[];
+  gunler: TopraqNemGunu[];
+};
+
 // Kök oturum (customer seçilmeden önceki) — çiftlik listesini almak için.
 let rootSession: TopraqSession | null = null;
 // Her çiftlik (customer id) için ayrı token — account/change-customer, cid'i
@@ -194,4 +230,157 @@ export async function getTopraqOverview(customerId: number): Promise<TopraqOverv
     });
 
   return { istasyonlar, nemSensorleri };
+}
+
+// "Toprak Nemi" ölçümünün platform genelinde sabit anahtarı (Hava Sıcaklığı'nın
+// 163, Bağıl Nem'in 164 olması gibi — cihazdan bağımsız, ölçüm tipine özel).
+const TOPRAK_NEMI_FW_KEY = 167;
+
+function tarihSaatiAyikla(x_f: string) {
+  const [tarih, saat] = x_f.split(" ");
+  const [gg, aa, yyyy] = tarih.split(".").map(Number);
+  const [ss, dd] = saat.split(":").map(Number);
+  const gunAnahtari = `${yyyy}-${String(aa).padStart(2, "0")}-${String(gg).padStart(2, "0")}`;
+  const iso = `${gunAnahtari}T${String(ss).padStart(2, "0")}:${String(dd).padStart(2, "0")}`;
+  return { gunAnahtari, saat: ss, iso, gg, aa, yyyy };
+}
+
+// Bir toprak nemi sensörünün 20/40/60/80cm derinliklerindeki ham verisinden
+// "Ağırlıklı Kök Bölgesi Nem İndeksi"ni türetir: her gün, hangi derinlik o gün
+// en çok dalgalandıysa (maks-min farkı en büyükse) o derinliğe o gün için daha
+// fazla ağırlık verilir; bu ağırlıklar aynı günün 2 saatlik ortalamalarıyla
+// çarpılıp toplanarak tek bir bileşik eğri elde edilir.
+export async function getTopraqNemProfili(
+  customerId: number,
+  fieldId: number,
+  deviceId: number,
+  gunSayisi = 14,
+): Promise<TopraqNemProfili | null> {
+  const session = await switchCustomer(customerId);
+  const bitis = Date.now();
+  // Bir gün fazladan çekilip en baştaki (yarım) gün atılır — aksi halde
+  // pencerenin başladığı an gün ortasına denk gelirse o gün için fark/ağırlık
+  // hesabı yanıltıcı (neredeyse sıfır) çıkar.
+  const baslangic = bitis - (gunSayisi + 1) * 24 * 3600 * 1000;
+  const body = await apiGet(
+    `field/${fieldId}/device/${deviceId}/measurement/${TOPRAK_NEMI_FW_KEY}/data?start_at=${baslangic}&end_at=${bitis}`,
+    session,
+  );
+
+  const meta = body?.data as { field?: { name: string }; device?: { label: string } } | undefined;
+  const gruplar = body?.data?.data as
+    | Array<{ axes: { y: { title?: string } }; series: Array<{ title: string; data: Array<{ x: number; x_f: string; y: number }> }> }>
+    | undefined;
+  if (!meta || !gruplar) return null;
+
+  const nemGrubu = gruplar.find((g) => g.axes?.y?.title === "Toprak Nemi");
+  const debiGrubu = gruplar.find((g) => g.axes?.y?.title === "Debi");
+  if (!nemGrubu) return null;
+
+  const derinlikSerisi = new Map<string, Map<number, number>>();
+  for (const seri of nemGrubu.series) {
+    const derinlik = seri.title.replace(/\s*cm$/i, "").trim();
+    derinlikSerisi.set(derinlik, new Map(seri.data.map((p) => [p.x, p.y])));
+  }
+  const debiSerisi = new Map((debiGrubu?.series?.[0]?.data ?? []).map((p) => [p.x, p.y]));
+  const zamanEtiketi = new Map((nemGrubu.series[0]?.data ?? []).map((p) => [p.x, p.x_f]));
+
+  const derinlikler = ["20", "40", "60", "80"] as const;
+  const s20 = derinlikSerisi.get("20");
+  if (!s20) return null;
+
+  // Ham satırlar: aynı x (zaman) için 4 derinlik + debi bir araya getirilir.
+  const hamSatirlar: { x: number; x_f: string; degerler: Record<string, number>; debi: number }[] = [];
+  for (const [x, v20] of s20) {
+    const degerler: Record<string, number> = { "20": v20 };
+    let eksik = false;
+    for (const d of derinlikler.slice(1)) {
+      const v = derinlikSerisi.get(d)?.get(x);
+      if (v === undefined) { eksik = true; break; }
+      degerler[d] = v;
+    }
+    if (eksik) continue;
+    const x_f = zamanEtiketi.get(x);
+    if (!x_f) continue;
+    hamSatirlar.push({ x, x_f, degerler, debi: debiSerisi.get(x) ?? 0 });
+  }
+  hamSatirlar.sort((a, b) => a.x - b.x);
+  if (hamSatirlar.length === 0) return null;
+
+  // Adım 1 & 2: gün bazında fark ve ağırlık.
+  const gunGruplari = new Map<string, typeof hamSatirlar>();
+  for (const satir of hamSatirlar) {
+    const { gunAnahtari } = tarihSaatiAyikla(satir.x_f);
+    if (!gunGruplari.has(gunAnahtari)) gunGruplari.set(gunAnahtari, []);
+    gunGruplari.get(gunAnahtari)!.push(satir);
+  }
+  // Fazladan çekilen tampon günün (en baştaki, yarım olabilecek gün) hem
+  // tablo hem grafikten düşürülmesi — bkz. yukarıdaki not.
+  const siraliGunAnahtarlari = Array.from(gunGruplari.keys()).sort((a, b) => a.localeCompare(b));
+  if (siraliGunAnahtarlari.length > gunSayisi) gunGruplari.delete(siraliGunAnahtarlari[0]);
+
+  const gunAgirliklari = new Map<string, Record<string, number>>();
+  const gunler: TopraqNemGunu[] = [];
+  for (const [gunAnahtari, satirlar] of Array.from(gunGruplari.entries()).sort((a, b) => a[0].localeCompare(b[0]))) {
+    const farklar: Record<string, number> = {};
+    for (const d of derinlikler) {
+      const degerler = satirlar.map((s) => s.degerler[d]);
+      farklar[d] = Math.max(...degerler) - Math.min(...degerler);
+    }
+    const toplamFark = derinlikler.reduce((a, d) => a + farklar[d], 0);
+    const agirliklar: Record<string, number> = {};
+    for (const d of derinlikler) agirliklar[d] = toplamFark > 0 ? farklar[d] / toplamFark : 0.25;
+    gunAgirliklari.set(gunAnahtari, agirliklar);
+
+    const [yyyy, aa, gg] = gunAnahtari.split("-");
+    gunler.push({
+      date: `${gg}.${aa}.${yyyy}`,
+      r20: Math.round(farklar["20"] * 10) / 10,
+      r40: Math.round(farklar["40"] * 10) / 10,
+      r60: Math.round(farklar["60"] * 10) / 10,
+      r80: Math.round(farklar["80"] * 10) / 10,
+      w20: Math.round(agirliklar["20"] * 1000) / 10,
+      w40: Math.round(agirliklar["40"] * 1000) / 10,
+      w60: Math.round(agirliklar["60"] * 1000) / 10,
+      w80: Math.round(agirliklar["80"] * 1000) / 10,
+      sulama: satirlar.some((s) => s.debi > 0),
+    });
+  }
+
+  // Adım 3: 2 saatlik kovalara ortalama al, o günün ağırlığıyla çarp.
+  const kovalar = new Map<string, typeof hamSatirlar>();
+  for (const satir of hamSatirlar) {
+    const { gunAnahtari, saat } = tarihSaatiAyikla(satir.x_f);
+    if (!gunAgirliklari.has(gunAnahtari)) continue; // düşürülen tampon gün
+    const kovaSaati = Math.floor(saat / 2) * 2;
+    const kovaAnahtari = `${gunAnahtari}T${String(kovaSaati).padStart(2, "0")}:00`;
+    if (!kovalar.has(kovaAnahtari)) kovalar.set(kovaAnahtari, []);
+    kovalar.get(kovaAnahtari)!.push(satir);
+  }
+
+  const ortalama = (arr: number[]) => arr.reduce((a, b) => a + b, 0) / arr.length;
+  const buckets: TopraqNemNoktasi[] = Array.from(kovalar.entries())
+    .sort((a, b) => a[0].localeCompare(b[0]))
+    .map(([kovaAnahtari, satirlar]) => {
+      const gunAnahtari = kovaAnahtari.slice(0, 10);
+      const agirliklar = gunAgirliklari.get(gunAnahtari)!;
+      const ortalamalar: Record<string, number> = {};
+      for (const d of derinlikler) ortalamalar[d] = ortalama(satirlar.map((s) => s.degerler[d]));
+      const weighted = derinlikler.reduce((a, d) => a + agirliklar[d] * ortalamalar[d], 0);
+      return {
+        t: kovaAnahtari,
+        v20: Math.round(ortalamalar["20"] * 100) / 100,
+        v40: Math.round(ortalamalar["40"] * 100) / 100,
+        v60: Math.round(ortalamalar["60"] * 100) / 100,
+        v80: Math.round(ortalamalar["80"] * 100) / 100,
+        debi: Math.round(ortalama(satirlar.map((s) => s.debi)) * 100) / 100,
+        w20: Math.round(agirliklar["20"] * 1000) / 10,
+        w40: Math.round(agirliklar["40"] * 1000) / 10,
+        w60: Math.round(agirliklar["60"] * 1000) / 10,
+        w80: Math.round(agirliklar["80"] * 1000) / 10,
+        weighted: Math.round(weighted * 1000) / 1000,
+      };
+    });
+
+  return { fieldName: meta.field?.name ?? "", deviceLabel: meta.device?.label ?? "", buckets, gunler };
 }
