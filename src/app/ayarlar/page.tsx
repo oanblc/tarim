@@ -10,6 +10,8 @@ import {
 import { PlusIcon, RECORD_TYPE_ICONS, SettingsIcon } from "@/components/icons";
 import { SilButonu } from "@/components/SilButonu";
 import { SayfaBasligi } from "@/components/SayfaBasligi";
+import { Button } from "@/components/ui/button/Button";
+import { Badge } from "@/components/ui/badge/Badge";
 
 export default async function AyarlarPage() {
   const user = await requireUser();
@@ -44,6 +46,42 @@ export default async function AyarlarPage() {
           })}
         </div>
       </div>
+
+      {user.rol === "admin" && (
+        <div className="bg-white border border-dashed border-blue rounded-2xl p-6 mb-6">
+          <div className="flex items-center gap-2 mb-1">
+            <div className="text-[15px] font-bold">Tasarım Pilotu — TailAdmin</div>
+            <span className="text-[10.5px] font-bold text-blue bg-blue-bg px-2 py-0.5 rounded-full">DENEME</span>
+          </div>
+          <div className="text-[13px] text-text-secondary mb-4">
+            TailAdmin&apos;den taşınan Button/Badge bileşenleri — henüz hiçbir yerde kullanılmıyor, sadece görsel
+            karşılaştırma için. Beğenirsen sırayla gerçek ekranlara (Sidebar/Header, formlar, tablolar) yayılır.
+          </div>
+
+          <div className="text-[11.5px] font-bold text-text-muted uppercase tracking-wide mb-2">Button</div>
+          <div className="flex flex-wrap items-center gap-3 mb-5">
+            <Button>Kaydet</Button>
+            <Button size="sm">Kaydet (sm)</Button>
+            <Button variant="outline">Vazgeç</Button>
+            <Button disabled>Devre Dışı</Button>
+          </div>
+
+          <div className="text-[11.5px] font-bold text-text-muted uppercase tracking-wide mb-2">Badge</div>
+          <div className="flex flex-wrap items-center gap-2">
+            <Badge color="primary">Primary</Badge>
+            <Badge color="success">Success</Badge>
+            <Badge color="error">Error</Badge>
+            <Badge color="warning">Warning</Badge>
+            <Badge color="info">Info</Badge>
+            <Badge variant="solid" color="primary">
+              Solid Primary
+            </Badge>
+            <Badge variant="solid" color="success">
+              Solid Success
+            </Badge>
+          </div>
+        </div>
+      )}
 
       {user.rol === "admin" && (
         <div className="bg-white border border-border rounded-2xl p-6 mb-6">

@@ -249,6 +249,23 @@ export function StarIcon({ size = 14, className, filled }: IconProps & { filled?
   );
 }
 
+export function MenuIcon({ size = 20, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>
+      <path d="M4 6h16M4 12h16M4 18h16" />
+    </svg>
+  );
+}
+
+export function PanelLeftIcon({ size = 18, className }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>
+      <rect x="3" y="4" width="18" height="16" rx="2.5" />
+      <path d="M9.5 4v16" />
+    </svg>
+  );
+}
+
 export function XIcon({ size = 12, className }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" stroke="currentColor" className={className} {...base}>
