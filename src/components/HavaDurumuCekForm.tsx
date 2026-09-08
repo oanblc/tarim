@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { haftalikSicaklikCekAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 export function HavaDurumuCekForm({ customerId }: { customerId: string }) {
   const [haftaBaslangic, setHaftaBaslangic] = useState("");
@@ -38,14 +39,9 @@ export function HavaDurumuCekForm({ customerId }: { customerId: string }) {
           disabled={pending}
           className="flex-1 border border-border rounded-[9px] px-3 py-2 text-[13px] outline-none focus:border-primary bg-white disabled:opacity-50"
         />
-        <button
-          type="button"
-          onClick={cek}
-          disabled={pending}
-          className="px-4 py-2 rounded-[9px] bg-primary text-cream text-[12.5px] font-bold whitespace-nowrap disabled:opacity-60"
-        >
+        <Button type="button" onClick={cek} disabled={pending} size="sm" className="whitespace-nowrap">
           {pending ? "Çekiliyor…" : "Otomatik Çek"}
-        </button>
+        </Button>
       </div>
       {durum && (
         <div className={`text-[11.5px] font-semibold mt-2 ${durum.tip === "hata" ? "text-red" : "text-primary"}`}>

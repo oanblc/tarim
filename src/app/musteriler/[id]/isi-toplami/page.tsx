@@ -7,6 +7,7 @@ import { ChevronRightIcon, ThermometerIcon } from "@/components/icons";
 import { GDD_BASE_TEMP_VARSAYILAN } from "@/lib/tarim";
 import { HavaDurumuCekForm } from "@/components/HavaDurumuCekForm";
 import { SilButonu } from "@/components/SilButonu";
+import { Button } from "@/components/ui/button/Button";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "long", year: "numeric" });
@@ -201,16 +202,13 @@ export default async function IsiToplamiPage(props: PageProps<"/musteriler/[id]/
             </label>
             <div className="flex items-center gap-2.5">
               {duzenlenen && (
-                <Link
-                  href={`/musteriler/${customer.id}/isi-toplami`}
-                  className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-                >
+                <Button href={`/musteriler/${customer.id}/isi-toplami`} variant="outline">
                   Vazgeç
-                </Link>
+                </Button>
               )}
-              <button type="submit" className="flex-1 mt-1 px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
+              <Button type="submit" className="flex-1 mt-1">
                 {duzenlenen ? "Kaydet" : "Haftayı Ekle"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

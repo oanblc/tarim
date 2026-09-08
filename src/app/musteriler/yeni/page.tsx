@@ -1,4 +1,5 @@
 import { createCustomerAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 export default function YeniMusteriPage() {
   return (
@@ -13,12 +14,7 @@ export default function YeniMusteriPage() {
           <Field label="Adres" name="adres" />
 
           <div className="flex gap-2.5 justify-end pt-2">
-            <button
-              type="submit"
-              className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold"
-            >
-              Müşteriyi Ekle
-            </button>
+            <Button type="submit">Müşteriyi Ekle</Button>
           </div>
         </form>
       </div>

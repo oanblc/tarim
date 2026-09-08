@@ -8,6 +8,7 @@ import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
 import { MAPBOX_TOKEN, DEFAULT_CENTER, polygonAreaDonum } from "@/lib/geo";
 import { MapboxTokenNotice } from "./MapboxTokenNotice";
 import { MapAramaKutusu } from "./MapAramaKutusu";
+import { Button } from "@/components/ui/button/Button";
 import type { LatLng } from "@/types";
 
 // Yeni parsel oluşturma akışında haritayı ilk adıma taşır: henüz veritabanında
@@ -98,13 +99,9 @@ export function ParcelBoundaryPicker({
         {sinir ? (
           <>
             <span className="text-[13px] font-semibold text-primary">{alanDonum} dönüm çizildi</span>
-            <button
-              type="button"
-              onClick={() => onDevamEt(sinir, alanDonum)}
-              className="px-4 py-1.5 rounded-[8px] bg-primary text-cream text-[12.5px] font-bold"
-            >
+            <Button type="button" onClick={() => onDevamEt(sinir, alanDonum)} size="sm">
               Devam Et →
-            </button>
+            </Button>
           </>
         ) : (
           <span className="text-[13px] text-text-secondary">Devam etmek için önce bir sınır çiz</span>

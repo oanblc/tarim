@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/session";
 import { createSulamaKuyusuAction, removeSulamaKuyusuAction, updateSulamaKuyusuAction } from "@/lib/actions";
 import { ChevronRightIcon } from "@/components/icons";
 import { SilButonu } from "@/components/SilButonu";
+import { Button } from "@/components/ui/button/Button";
 
 export default async function SulamaKuyulariPage(props: PageProps<"/musteriler/[id]/sulama-kuyulari">) {
   const { id } = await props.params;
@@ -56,9 +57,9 @@ export default async function SulamaKuyulariPage(props: PageProps<"/musteriler/[
                       className="w-full border border-border rounded-[8px] px-3 py-2 text-[13px] outline-none focus:border-primary"
                     />
                   </label>
-                  <button type="submit" className="px-3.5 py-2 rounded-[8px] bg-primary text-cream text-[12px] font-bold whitespace-nowrap">
+                  <Button type="submit" size="sm" className="whitespace-nowrap">
                     Kaydet
-                  </button>
+                  </Button>
                 </form>
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-[11px] text-text-muted font-semibold uppercase tracking-wide">Bağlı Parseller</span>
@@ -128,9 +129,9 @@ export default async function SulamaKuyulariPage(props: PageProps<"/musteriler/[
                 className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13px] outline-none focus:border-primary resize-none"
               />
             </label>
-            <button type="submit" className="mt-1 px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
+            <Button type="submit" className="mt-1">
               Kuyuyu Ekle
-            </button>
+            </Button>
           </form>
         </div>
       </div>

@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/session";
 import { createSulamaPlaniAction, removeSulamaPlaniAction } from "@/lib/actions";
 import { ChevronRightIcon } from "@/components/icons";
 import { SilButonu } from "@/components/SilButonu";
+import { Button } from "@/components/ui/button/Button";
 
 function formatDate(iso: string) {
   return new Date(iso).toLocaleDateString("tr-TR", { day: "numeric", month: "short" });
@@ -127,9 +128,7 @@ export default async function SulamaUyumuPage(props: PageProps<"/parseller/[id]/
                 className="w-full border border-border rounded-[9px] px-3.5 py-2.5 text-[13px] outline-none focus:border-primary"
               />
             </label>
-            <button type="submit" className="mt-1 px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-              Planı Oluştur
-            </button>
+            <Button type="submit" className="mt-1">Planı Oluştur</Button>
           </form>
         </div>
       </div>

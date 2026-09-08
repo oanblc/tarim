@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { customers } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { updateCustomerAction, removeCustomerAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 export default async function MusteriDuzenlePage(props: PageProps<"/musteriler/[id]/duzenle">) {
   const { id } = await props.params;
@@ -58,15 +59,10 @@ export default async function MusteriDuzenlePage(props: PageProps<"/musteriler/[
           </label>
 
           <div className="flex gap-2.5 justify-end pt-2">
-            <Link
-              href={`/musteriler/${id}`}
-              className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            <Button href={`/musteriler/${id}`} variant="outline">
               Vazgeç
-            </Link>
-            <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-              Kaydet
-            </button>
+            </Button>
+            <Button type="submit">Kaydet</Button>
           </div>
         </form>
 
@@ -79,9 +75,9 @@ export default async function MusteriDuzenlePage(props: PageProps<"/musteriler/[
             </div>
           </div>
           <form action={silAction}>
-            <button type="submit" className="px-4 py-2.5 rounded-[10px] border border-red text-red text-[13px] font-bold whitespace-nowrap">
+            <Button type="submit" variant="danger" className="whitespace-nowrap">
               Müşteriyi Sil
-            </button>
+            </Button>
           </form>
         </div>
       </div>

@@ -13,6 +13,7 @@ import { URUN_BIRIM_PARSEL, type BeslenmeUrun } from "@/lib/beslenme";
 import { ChevronRightIcon } from "@/components/icons";
 import { SilButonu } from "@/components/SilButonu";
 import { HesaplamaMantigiButonu } from "@/components/HesaplamaMantigiButonu";
+import { Button } from "@/components/ui/button/Button";
 
 function formatDate(iso: string) {
   return new Date(iso + "T00:00:00Z").toLocaleDateString("tr-TR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
@@ -195,9 +196,7 @@ export default async function BeslenmeProgramiPage(props: PageProps<"/parseller/
                       <div className="text-[11px] font-bold text-[#4A4F45] mb-1">Not (opsiyonel)</div>
                       <input name="not" type="text" className="w-full border border-border rounded-[8px] px-2.5 py-2 text-[12.5px] outline-none focus:border-primary" />
                     </label>
-                    <button type="submit" className="px-4 py-2 rounded-[8px] bg-primary text-cream text-[12.5px] font-bold">
-                      Ekle
-                    </button>
+                    <Button type="submit" size="sm">Ekle</Button>
                   </form>
                 </div>
               );
@@ -271,16 +270,13 @@ export default async function BeslenmeProgramiPage(props: PageProps<"/parseller/
             </label>
             <div className="flex items-center gap-2.5">
               {duzenlenenPlan && (
-                <Link
-                  href={`/parseller/${parcel.id}/beslenme`}
-                  className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-                >
+                <Button href={`/parseller/${parcel.id}/beslenme`} variant="outline">
                   Vazgeç
-                </Link>
+                </Button>
               )}
-              <button type="submit" className="flex-1 mt-1 px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
+              <Button type="submit" className="flex-1 mt-1">
                 {duzenlenenPlan ? "Kaydet" : "Planı Oluştur"}
-              </button>
+              </Button>
             </div>
           </form>
         </div>

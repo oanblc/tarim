@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getCustomersView, getHaftalikOzetView } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
 import { MusteriSecOtomatik } from "@/components/MusteriSecOtomatik";
+import { Button } from "@/components/ui/button/Button";
 
 function formatGun(iso: string) {
   const d = new Date(iso + "T00:00:00Z");
@@ -44,12 +45,9 @@ export default async function HaftalikOzetPage(props: PageProps<"/raporlar/hafta
             Bu müşteri için henüz ısı verisi yok — bir parselin sınırı haritada çizilince otomatik oluşur, veya
             elle bir Isı Toplamı haftası tanımlayabilirsin.
           </span>
-          <Link
-            href={`/musteriler/${musteriId}/isi-toplami`}
-            className="px-4 py-2 rounded-[9px] bg-primary text-cream text-[12.5px] font-bold"
-          >
+          <Button href={`/musteriler/${musteriId}/isi-toplami`} size="sm">
             Isı Toplamı Haftası Ekle →
-          </Link>
+          </Button>
         </div>
       ) : (
         <div className="bg-white border border-border rounded-2xl overflow-x-auto">

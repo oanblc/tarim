@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { parcels, users } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { customers } from "@/lib/repositories";
 import { createGorevAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 const KONULAR = ["Genel", "Gübreleme", "Sulama", "Toprak", "Budama", "Yabancı Ot", "Hastalık / Zararlı"];
 
@@ -116,15 +116,10 @@ export default async function GorevEklePage(props: PageProps<"/parseller/[id]/go
           </label>
 
           <div className="flex gap-2.5 justify-end pt-2">
-            <Link
-              href={`/parseller/${parcel.id}`}
-              className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            <Button href={`/parseller/${parcel.id}`} variant="outline">
               Vazgeç
-            </Link>
-            <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-              Görevi Ekle
-            </button>
+            </Button>
+            <Button type="submit">Görevi Ekle</Button>
           </div>
         </form>
       </div>

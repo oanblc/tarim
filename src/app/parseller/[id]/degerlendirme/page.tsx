@@ -4,6 +4,7 @@ import { getParcelDetail } from "@/lib/queries";
 import { requireUser } from "@/lib/session";
 import { saveParselDegerlendirmeAction } from "@/lib/actions";
 import { PuanSecici } from "@/components/PuanSecici";
+import { Button } from "@/components/ui/button/Button";
 
 export default async function ParselDegerlendirmePage(props: PageProps<"/parseller/[id]/degerlendirme">) {
   const { id } = await props.params;
@@ -55,15 +56,10 @@ export default async function ParselDegerlendirmePage(props: PageProps<"/parsell
             })}
 
             <div className="flex justify-end gap-2.5">
-              <Link
-                href={`/parseller/${parcel.id}?sekme=degerlendirme`}
-                className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-              >
+              <Button href={`/parseller/${parcel.id}?sekme=degerlendirme`} variant="outline">
                 Vazgeç
-              </Link>
-              <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-                Kaydet
-              </button>
+              </Button>
+              <Button type="submit">Kaydet</Button>
             </div>
           </form>
         )}

@@ -2,6 +2,7 @@
 
 import { useActionState } from "react";
 import { loginAction, type LoginState } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 const initialState: LoginState = null;
 
@@ -33,13 +34,9 @@ export function LoginForm() {
 
       {state?.error && <div className="text-[12.5px] text-red bg-red-bg rounded-[9px] px-3.5 py-2.5">{state.error}</div>}
 
-      <button
-        type="submit"
-        disabled={pending}
-        className="mt-1 px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold disabled:opacity-60"
-      >
+      <Button type="submit" disabled={pending} className="mt-1">
         {pending ? "Giriş yapılıyor..." : "Giriş Yap"}
-      </button>
+      </Button>
     </form>
   );
 }

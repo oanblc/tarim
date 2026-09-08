@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import Link from "next/link";
 import { createGorevYeniAction, type CreateGorevYeniState } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 import type { Customer, Parcel, User } from "@/types";
 
 const KONULAR = ["Genel", "Gübreleme", "Sulama", "Toprak", "Budama", "Yabancı Ot", "Hastalık / Zararlı"];
@@ -166,16 +166,12 @@ export function YeniGorevFormu({
       {state?.error && <div className="text-[12.5px] text-red bg-red-bg rounded-[9px] px-3.5 py-2.5">{state.error}</div>}
 
       <div className="flex gap-2.5 justify-end pt-2">
-        <Link href="/gorevler" className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]">
+        <Button href="/gorevler" variant="outline">
           Vazgeç
-        </Link>
-        <button
-          type="submit"
-          disabled={pending || !parcelId}
-          className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" disabled={pending || !parcelId}>
           {pending ? "Ekleniyor..." : "Görevi Ekle"}
-        </button>
+        </Button>
       </div>
     </form>
   );

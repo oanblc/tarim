@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import Link from "next/link";
 import { updateUserAction, type UpdateUserState } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 import type { User } from "@/types";
 
 const initialState: UpdateUserState = null;
@@ -70,19 +70,12 @@ export function EditUserForm({ user, kendisiMi }: { user: User; kendisiMi: boole
       {state?.error && <div className="text-[12.5px] text-red bg-red-bg rounded-[9px] px-3.5 py-2.5">{state.error}</div>}
 
       <div className="flex gap-2.5 justify-end pt-2">
-        <Link
-          href="/ayarlar"
-          className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-        >
+        <Button href="/ayarlar" variant="outline">
           Vazgeç
-        </Link>
-        <button
-          type="submit"
-          disabled={pending}
-          className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold disabled:opacity-60"
-        >
+        </Button>
+        <Button type="submit" disabled={pending}>
           {pending ? "Kaydediliyor..." : "Kaydet"}
-        </button>
+        </Button>
       </div>
     </form>
   );

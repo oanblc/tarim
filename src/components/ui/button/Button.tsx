@@ -11,7 +11,7 @@ import Link from "next/link";
 type ButtonProps = {
   children: ReactNode;
   size?: "sm" | "md";
-  variant?: "primary" | "outline";
+  variant?: "primary" | "outline" | "danger";
   startIcon?: ReactNode;
   endIcon?: ReactNode;
   className?: string;
@@ -31,6 +31,7 @@ export function Button(
     primary: "bg-primary text-cream shadow-theme-xs hover:bg-primary/90 disabled:bg-primary/40",
     outline:
       "bg-white text-[#4A4F45] ring-1 ring-inset ring-border hover:bg-cream dark:bg-gray-800 dark:text-gray-400 dark:ring-gray-700 dark:hover:bg-white/[0.03] dark:hover:text-gray-300",
+    danger: "bg-white text-red ring-1 ring-inset ring-red/40 hover:bg-red-bg",
   };
 
   const disabled = "disabled" in props && props.disabled;

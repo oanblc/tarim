@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { createFertigasyonKaydiAction } from "@/lib/actions";
 import { FERTIGASYON_BIRIM, FERTIGASYON_VARSAYILAN_AMBALAJ } from "@/lib/fertigasyon";
+import { Button } from "@/components/ui/button/Button";
 import type { FertigasyonUrun } from "@/types";
 
 const URUNLER: FertigasyonUrun[] = ["AS21", "K2SO4", "H3PO4", "Demir"];
@@ -117,9 +118,7 @@ export function FertigasyonForm({ parcelId }: { parcelId: string }) {
         />
       </label>
 
-      <button type="submit" className="mt-1 px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-        Hesapla ve Kaydet
-      </button>
+      <Button type="submit" className="mt-1">Hesapla ve Kaydet</Button>
     </form>
   );
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { OneriliMetin } from "@/components/OneriliMetin";
 import { CokluSecimEkle } from "@/components/CokluSecimEkle";
 import { agacAraligiHesapla, parselCesitleri, type ParselOnerileri } from "@/lib/parsel";
+import { Button } from "@/components/ui/button/Button";
 import type { Parcel, SulamaKuyusu } from "@/types";
 
 export function ParselDuzenleForm({
@@ -121,15 +122,10 @@ export function ParselDuzenleForm({
         </label>
 
         <div className="flex justify-end gap-2.5 pt-2">
-          <Link
-            href={`/parseller/${parcel.id}`}
-            className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-          >
+          <Button href={`/parseller/${parcel.id}`} variant="outline">
             Vazgeç
-          </Link>
-          <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-            Kaydet
-          </button>
+          </Button>
+          <Button type="submit">Kaydet</Button>
         </div>
       </form>
 
@@ -141,9 +137,7 @@ export function ParselDuzenleForm({
           </div>
         </div>
         <form action={silAction}>
-          <button type="submit" className="px-4 py-2.5 rounded-[10px] border border-red text-red text-[13px] font-bold whitespace-nowrap">
-            Parseli Sil
-          </button>
+          <Button type="submit" variant="danger" className="whitespace-nowrap">Parseli Sil</Button>
         </form>
       </div>
     </>

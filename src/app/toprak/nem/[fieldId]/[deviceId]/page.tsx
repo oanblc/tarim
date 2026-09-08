@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requireUser } from "@/lib/session";
 import { getTopraqNemProfili } from "@/lib/topraq";
 import { NemIndeksiGrafik } from "./NemIndeksiGrafik";
+import { Badge } from "@/components/ui/badge/Badge";
 
 export default async function TopraqNemPage(props: PageProps<"/toprak/nem/[fieldId]/[deviceId]">) {
   await requireUser();
@@ -78,7 +79,7 @@ export default async function TopraqNemPage(props: PageProps<"/toprak/nem/[field
                     <td className="px-3 py-2.5 text-right">%{g.w80}</td>
                     <td className="px-3 py-2.5 text-right">
                       {g.sulama ? (
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary-bg text-primary">VAR</span>
+                        <Badge size="sm">VAR</Badge>
                       ) : (
                         <span className="text-text-muted">—</span>
                       )}

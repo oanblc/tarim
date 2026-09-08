@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { parcels, customers, gorevler, users } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { updateGorevAction, removeGorevAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 const KONULAR = ["Genel", "Gübreleme", "Sulama", "Toprak", "Budama", "Yabancı Ot", "Hastalık / Zararlı"];
 
@@ -115,24 +115,17 @@ export default async function GorevDuzenlePage(props: PageProps<"/parseller/[id]
           </div>
 
           <div className="flex gap-2.5 justify-end pt-2">
-            <Link
-              href={`/parseller/${parcel.id}?sekme=gorevler`}
-              className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-            >
+            <Button href={`/parseller/${parcel.id}?sekme=gorevler`} variant="outline">
               Vazgeç
-            </Link>
-            <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-              Kaydet
-            </button>
+            </Button>
+            <Button type="submit">Kaydet</Button>
           </div>
         </form>
 
         <div className="bg-white border border-red/30 rounded-2xl p-6 mt-5 flex items-center justify-between">
           <div className="text-[13.5px] font-bold text-red">Görevi Sil</div>
           <form action={silAction}>
-            <button type="submit" className="px-4 py-2.5 rounded-[10px] border border-red text-red text-[13px] font-bold">
-              Sil
-            </button>
+            <Button type="submit" variant="danger">Sil</Button>
           </form>
         </div>
       </div>

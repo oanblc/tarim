@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { parcels, customers, records, recordTypes } from "@/lib/repositories";
 import { requireUser, canAccessCustomer } from "@/lib/session";
 import { updateRecordAction, removeRecordAction } from "@/lib/actions";
+import { Button } from "@/components/ui/button/Button";
 
 export default async function KayitDuzenlePage(props: PageProps<"/parseller/[id]/kayit/[recordId]/duzenle">) {
   const { id, recordId } = await props.params;
@@ -103,15 +104,10 @@ export default async function KayitDuzenlePage(props: PageProps<"/parseller/[id]
             </label>
 
             <div className="flex gap-2.5 justify-end pt-2">
-              <Link
-                href={`/parseller/${parcel.id}`}
-                className="px-5 py-2.5 rounded-[10px] border border-border text-[13.5px] font-bold text-[#4A4F45]"
-              >
+              <Button href={`/parseller/${parcel.id}`} variant="outline">
                 Vazgeç
-              </Link>
-              <button type="submit" className="px-[22px] py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-                Kaydet
-              </button>
+              </Button>
+              <Button type="submit">Kaydet</Button>
             </div>
           </form>
         </div>
@@ -119,9 +115,7 @@ export default async function KayitDuzenlePage(props: PageProps<"/parseller/[id]
         <div className="bg-white border border-red/30 rounded-2xl p-6 mt-5 flex items-center justify-between">
           <div className="text-[13.5px] font-bold text-red">Kaydı Sil</div>
           <form action={silAction}>
-            <button type="submit" className="px-4 py-2.5 rounded-[10px] border border-red text-red text-[13px] font-bold">
-              Sil
-            </button>
+            <Button type="submit" variant="danger">Sil</Button>
           </form>
         </div>
       </div>

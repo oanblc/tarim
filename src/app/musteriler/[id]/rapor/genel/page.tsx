@@ -5,6 +5,7 @@ import { requireUser } from "@/lib/session";
 import { createReportDraftAction } from "@/lib/actions";
 import { CheckIcon } from "@/components/icons";
 import { SelectAllToggle } from "@/components/SelectAllToggle";
+import { Button } from "@/components/ui/button/Button";
 
 function isoToday() {
   return new Date().toISOString().slice(0, 10);
@@ -92,9 +93,7 @@ export default async function RaporOlusturPage(props: PageProps<"/musteriler/[id
           </label>
 
           <div className="flex justify-end pt-1">
-            <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-              Taslağı Oluştur
-            </button>
+            <Button type="submit">Taslağı Oluştur</Button>
           </div>
         </form>
       </div>

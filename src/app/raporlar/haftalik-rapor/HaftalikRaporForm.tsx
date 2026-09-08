@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { createHaftalikRaporAction, type HaftalikRaporState } from "@/lib/actions";
 import { FENOLOJIK_DONEM_LISTESI } from "@/lib/tarim";
 import { CheckIcon, ChevronLeftIcon, ChevronRightIcon } from "@/components/icons";
+import { Button } from "@/components/ui/button/Button";
 import type { Customer, Parcel } from "@/types";
 
 const initialState: HaftalikRaporState = null;
@@ -383,13 +384,9 @@ export function HaftalikRaporForm({
       )}
 
       <div className="flex justify-end pt-5 mt-5 border-t border-border-soft">
-        <button
-          type="submit"
-          disabled={pending || !secilenMusteriId}
-          className="px-6 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold disabled:opacity-60"
-        >
+        <Button type="submit" disabled={pending || !secilenMusteriId}>
           {pending ? "Kaydediliyor..." : "Kaydet"}
-        </button>
+        </Button>
       </div>
     </form>
   );

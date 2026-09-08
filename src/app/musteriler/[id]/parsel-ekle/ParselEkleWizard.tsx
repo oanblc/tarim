@@ -6,6 +6,7 @@ import { ParcelBoundaryPicker } from "@/components/map/ParcelBoundaryPicker";
 import { OneriliMetin } from "@/components/OneriliMetin";
 import { CokluSecimEkle } from "@/components/CokluSecimEkle";
 import { agacAraligiHesapla, type ParselOnerileri } from "@/lib/parsel";
+import { Button } from "@/components/ui/button/Button";
 import type { LatLng, SulamaKuyusu } from "@/types";
 
 // Parsel oluşturma önce harita üzerinde sınır çizmeyi, sonra ad/ürün gibi
@@ -158,9 +159,7 @@ export function ParselEkleWizard({
           </label>
 
           <div className="flex justify-end pt-2">
-            <button type="submit" className="px-5 py-2.5 rounded-[10px] bg-primary text-cream text-[13.5px] font-bold">
-              Parseli Ekle
-            </button>
+            <Button type="submit">Parseli Ekle</Button>
           </div>
         </form>
       </div>
